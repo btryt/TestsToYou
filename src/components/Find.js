@@ -7,7 +7,7 @@ const Find = () =>{
     const ref = useRef()
     const [list,setList] = useState([])
     const [loading,setLoading] = useState(false)
-    const [columns,setColumns] = useState([{field:"title",headerName:"Название",width:150,editable: false},
+    const [columns,setColumns] = useState([{field:"title",headerName:"Название",width:230,editable: false},
     {field:"url",headerName:"Ссылка",width:250,editable: false,renderCell:(params)=><Link to={`test/${params.value}`}>http://localhost/test/{params.value}</Link>}])
     const findTest = debounce((e)=>{
         if(e.target.value.trim() && e.target.value.trim().length <=120){
