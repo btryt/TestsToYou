@@ -1,0 +1,19 @@
+const express   = require("express")
+const app       = express()
+const session   = require("express-session")
+const authRoute = require("./api/auth")
+const testRoute = require("./api/testRoute")
+app.use(express.json())
+app.use(session({
+    secret:"A-8gt/@5p",
+    resave:true,
+    saveUninitialized:false,
+    cookie:{
+        maxAge:60*60*1000
+    }
+}))
+app.use("/api",authRoute)
+app.use("/api",testRoute)
+
+
+app.listen(4000)

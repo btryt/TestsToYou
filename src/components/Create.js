@@ -1,0 +1,294 @@
+import React, { useRef, useState, useCallback } from "react"
+import debounce from 'lodash.debounce'
+import {
+  TextField,
+  Grid,
+  Button,
+  FormControl,
+  Box,
+  Typography,
+  Checkbox,
+  Tooltip,
+  FormControlLabel,
+  Toolbar,
+} from "@material-ui/core"
+
+import Alert from './Alert'
+const Create = ({setActive}) => {
+  const [tests, setTests] = useState([])
+  const [emptyTestTitle,setEmptyTestTitle] = useState([])
+  const [emptyVariantTitle,setEmptyVariantTitle] = useState([])
+  const [characterLimitExceededTitle,setCharacterLimitExceededTitle] = useState([])
+  const [characterLimitExceededVariant,setCharacterLimitExceededVariant] = useState([])
+  const [error,setError] = useState(null)
+  const [showCorrect,setShowCorrect] = useState(false)
+  const [linkAccess,setLinkAccess] = useState(false)
+  const [testTitle, setTestTitle] = useState("")
+  const [step, setStep] = useState(0)
+  const ref = useRef()
+
+  const addTitle = useCallback(() => {
+    if (ref.current.value.trim() && ref.current.value.trim().length <= 120 && ref.current.value.trim().length >= 5) {
+      setTestTitle(ref.current.value.trim())
+      setStep((prev) => prev + 1)
+    }
+  }, [])
+  
+  const changeTestTitle = debounce((e,id)=>{
+      let array = [...tests]
+      let testIndex = array.findIndex((test) => test.id === id)
+      if(e.target.value.trim().length >=210){
+        if(!characterLimitExceededTitle.some(ch=> ch.id === id)){
+          setCharacterLimitExceededTitle(prev => [...prev,{id}])
+        }
+      }
+      else{
+        if(characterLimitExceededTitle.some(ch=> ch.id === id)){
+          let arrayCharracter = [...characterLimitExceededTitle]
+          let index = arrayCharracter.findIndex(cr => cr.id === id)
+          arrayCharracter.splice(index,1)
+          setCharacterLimitExceededTitle(arrayCharracter)
+        }
+        array[testIndex].title = e.target.value.trim()
+        setTests(array)
+      }
+  },600)
+  const addQuestion = useCallback(() => {
+    if(tests.length <= 40){
+      setTests((prev) => [
+        ...prev,
+        {
+          id: new Date().getTime(),
+          title: "",
+          variants: [{ id: new Date().getTime(), title: "", correct: true }],
+        },
+      ])
+  }
+  }, [tests.length])
+  const deleteQuestion = useCallback(
+    (id) => {
+      let array = [...tests]
+      let testIndex = array.findIndex((test) => test.id === id)
+      array.splice(testIndex,1)
+      setTests(array)
+    },
+    [tests]
+  )
+  const addVariant = useCallback((id) => {
+      let array = [...tests]
+      let testIndex = array.findIndex((test) => test.id === id)
+      
+      if(array[testIndex].variants.length === 4) return
+
+      array[testIndex].variants.push({
+         id: new Date().getTime(),
+         title: "",
+         correct: false,
+      })
+      setTests(array)
+    },
+    [tests]
+  )
+  const deleteVariant = useCallback(
+    (id, variantId) => {
+      let array = [...tests]
+      let testIndex = array.findIndex((test) => test.id === id)
+      let variantIndex = array[testIndex].variants.findIndex( (variant) => variant.id === variantId)
+      if(array[testIndex].variants.length === 1) return
+      array[testIndex].variants.splice(variantIndex, 1)
+      setTests(array)
+    },
+    [tests]
+  )
+  const setCorrectVariant = useCallback((id,variantId)=>{
+    let array = [...tests]
+    let testIndex = array.findIndex((test) => test.id === id)
+    let variantIndex = array[testIndex].variants.findIndex( (variant) => variant.id === variantId)
+    array[testIndex].variants.forEach(variant=>{
+        if(variant.correct){
+            variant.correct = false
+        }
+    })
+    array[testIndex].variants[variantIndex].correct = !array[testIndex].variants[variantIndex].correct
+    setTests(array)
+  },[tests])
+
+  const changeTestVariantTitle = useCallback(debounce((e,id,variantId)=>{
+      let array = [...tests]
+      let testIndex = array.findIndex((test) => test.id === id)
+      let variantIndex = array[testIndex].variants.findIndex( (variant) => variant.id === variantId)
+      if(e.target.value.trim().length >= 150){
+        if(!characterLimitExceededVariant.some(ch=> ch.id === variantId)){
+          setCharacterLimitExceededVariant(prev => [...prev,{id:variantId}])
+        }
+      }
+      else{
+        if(characterLimitExceededVariant.some(ch=> ch.id === variantId)){
+          let arrayCharacterVariant = [...characterLimitExceededVariant]
+          let index = arrayCharacterVariant.findIndex(ch=> ch.id === variantId)
+          arrayCharacterVariant.splice(index,1)
+          setCharacterLimitExceededVariant(arrayCharacterVariant)
+        }
+        array[testIndex].variants[variantIndex].title = e.target.value.trim()
+        setTests(array)
+      }
+  },500),[tests,characterLimitExceededVariant])
+  const createTest = useCallback(()=>{
+    let check = true
+    setError(null)
+    setEmptyTestTitle([])
+    setEmptyVariantTitle([])
+    let array = [...tests]
+    array.forEach((test,index)=>{
+      if(!test.title.trim()){
+        check = false
+        setEmptyTestTitle(prev => [...prev,index+1])
+      }
+      test.variants.forEach((variant,i)=>{
+        if(!variant.title.trim()){
+          check = false
+          setEmptyVariantTitle(prev=>[...prev,{test:index+1,variant:i+1}])
+        }
+      })
+    })
+    if(!characterLimitExceededTitle.length && !characterLimitExceededVariant.length && check ){
+      fetch('/api/test/create',{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tests,testTitle,showCorrect,linkAccess})})
+      .then(async(res)=>{
+        if(res.ok){
+          setActive(0)
+        }
+        else{
+          setError("Произошла неизвестна ошибка при сохранении тест")
+        }
+      })
+      console.log(tests)
+    }
+  },[tests,testTitle,showCorrect,setActive,characterLimitExceededTitle.length,characterLimitExceededVariant.length,linkAccess])
+
+  const showCorrectAnswers = useCallback(()=>{
+    setShowCorrect(prev=> !prev)
+  },[])
+  const changeLinkAccess = useCallback(()=>{
+    setLinkAccess(prev => !prev)
+  },[])
+  return (
+    <div>
+      <Grid
+        container
+        alignItems="center"
+        justify="center"
+        style={{ minHeight: "50vh", flexWrap: "nowrap" }}
+      >
+        <Grid lg={6} item>
+          {step === 0 ? (
+            <FormControl fullWidth>
+              <TextField
+                inputRef={ref}
+                fullWidth
+                label="Название теста"
+                variant="outlined"
+              />
+              <Button
+                disabled={step === 1}
+                onClick={addTitle}
+                style={{ marginTop: "4px" }}
+                variant="contained"
+                color="primary"
+              >
+                Продолжить
+              </Button>
+              <small>Названиет теста от 5 до 120 символов</small>
+            </FormControl>
+          ) : (
+            <>
+              {tests.length
+                ? tests.map((test, i) => (
+                    <Box key={test.id} style={{ margin: "8px" }}>
+                      <Toolbar style={{ padding: "0" }} variant="dense">
+                        <Typography style={{ flexGrow: "1" }} variant="h6">
+                          №{i + 1}
+                        </Typography>
+                        <Button
+                          onClick={() => deleteQuestion(test.id)}
+                          variant="contained"
+                          color="secondary"
+                          style={{ marginRight: "4px" }}
+                        >
+                          X
+                        </Button>
+                      </Toolbar>
+                      <TextField onChange={(e)=>changeTestTitle(e,test.id)} margin="dense" fullWidth label="Вопрос" variant="outlined" />
+                      {characterLimitExceededTitle.some(cr=>cr.id === test.id) && <small style={{color:"red"}}>Уменьньшите длину вопроса до 210 символов</small>}
+                      <p style={{ margin: "4px" }}>Варианты ответа</p>
+                      {test.variants.map((variant, i) => (
+                        <Box key={variant.id}>
+                          <Toolbar style={{ padding: "0", margin: "0" }}>
+                            <Tooltip title="Правильный ответ">
+                             <FormControl>
+                                 <FormControlLabel labelPlacement="bottom" label="Правильный" control={<Checkbox onChange={()=>setCorrectVariant(test.id,variant.id)} checked={variant.correct} />}/>
+                            </FormControl>
+                            </Tooltip>
+                            <div style={{display:"flex",flexDirection:"column"}}>
+                            <TextField
+                              onChange={(e)=>changeTestVariantTitle(e,test.id,variant.id)}
+                              margin="dense"
+                              label="Вариант ответа"
+                              variant="outlined"
+                            />
+                            {characterLimitExceededVariant.some(cr=>cr.id === variant.id) && <small style={{color:"red"}}>Уменьшите длину варианта ответа до 150 символов</small>}
+                            </div>
+                            <div
+                              onClick={() => deleteVariant(test.id, variant.id)}
+                              style={{ cursor: "pointer", marginLeft: "4px" }}
+                            >
+                              &#10296;
+                            </div>
+                          </Toolbar>
+                        </Box>
+                      ))}
+                      <Button
+                        onClick={() => addVariant(test.id)}
+                        style={{
+                          width: "10%",
+                          padding: "5px",
+                          marginTop: "8px",
+                        }}
+                        variant="outlined"
+                        color="primary"
+                      >
+                        +
+                      </Button>
+                    </Box>
+                  ))
+                : ""}
+
+              <FormControlLabel
+                label="Показывать правильные ответы после завершения теста"
+                control={<Checkbox checked={showCorrect} onChange={showCorrectAnswers} />}
+              />
+               <FormControlLabel
+                label="Доступ только по ссылке"
+                control={<Checkbox checked={linkAccess} onChange={changeLinkAccess} />}
+              />
+              <Button
+                onClick={addQuestion}
+                style={{ marginBottom: "4px" }}
+                variant="contained"
+                color="primary"
+                fullWidth>
+                Добавить вопрос
+              </Button>
+              {tests.length ? <Button variant="contained" onClick={createTest}  fullWidth style={{background:"lime", }}>Создать тест</Button>:""}
+              {emptyTestTitle.length?<Alert variant="error">Пропущенно название вопроса {emptyTestTitle.map((em,i)=>(<span key={i} style={{marginLeft:"8px"}}>№{em}</span>))}</Alert>:""}
+              {emptyVariantTitle.length ? <Alert variant="error">Пропущен{emptyVariantTitle.map((v,i)=>(<span key={i} style={{marginLeft:"8px"}}>вариант ответа <span style={{fontWeight:"900"}}>№{v.variant}</span> в вопросе <span style={{fontWeight:"900"}}>№{v.test}</span>,</span>))}</Alert>:""}
+              {characterLimitExceededTitle.length? <Alert variant="error">В каком-то вопросе превышенно колличество символов</Alert>:""}
+              {error ? <Alert variant="error">{error}</Alert>:""}
+            </>
+          )}
+        </Grid>
+      </Grid>
+    </div>
+  )
+}
+
+export default React.memo(Create)
