@@ -72,15 +72,16 @@ const Result = ({match}) => {
     <Container style={{ marginTop: "4px" }}>
       <Grid container style={{position:"relative",width:"100%"}}>
         {loaded ?<Grid item xs={12}>
-          <Paper elevation={7} style={{ minHeight: "50vh" }}>
+          <Paper elevation={7}>
             <Typography variant="h6" style={{textAlign:"center",wordBreak:"break-word"}}>
              {testTitle}
             </Typography>
-            <Grid justify="center" container>
-              <Grid item md={6}>
+            </Paper>
+            <>
                 {tests.length &&
                   tests.map((test, i) => (
-                    <Box style={{ margin: "8px" }} key={test.id}>
+                    <Paper elevation={7} key={test.id}>
+                    <Box style={{ margin: "8px" }} >
                       <Toolbar variant="dense">
                         <span
                           style={{ wordBreak: "break-word",padding:"4px" }}
@@ -92,7 +93,7 @@ const Result = ({match}) => {
                         <Box key={variant.id}>
                           <Toolbar variant="dense">
                             <FormControl style={{flexShrink:0}}>
-                              <Radio  disabled checked={answers.some(answer => answer.testId === test.id && answer.variant.id === variant.id)} />
+                              <Radio disabled checked={answers.some(answer => answer.testId === test.id && answer.variant.id === variant.id)} />
                             </FormControl>
                             {showCorrectAnswer ? <p style={{ wordBreak: "break-all",color:`${answers.some(v=> v.testId === test.id && variant.id === v.variant.id && variant.correct)?"lime":
                             answers.some(v=> v.testId === test.id && variant.id === v.variant.id && !variant.correct)?"red":answers.some(v=> v.testId === test.id && variant.id !== v.variant.id && variant.correct)?"lime":""}`}}>{variant.title}
@@ -101,16 +102,19 @@ const Result = ({match}) => {
                         </Box>
                       ))}
                     </Box>
+                    </Paper>
                   ))}
+                  <Paper elevation={7}>
                   <div style={{marginBottom:"30px",width:"100%",flexDirection:"column",display:"flex",alignItems:"center"}}>
-                    <div style={{display:"flex"}}>
+                    <div style={{display:"flex",flexDirection:"column"}}>
+                      <Typography variant="h6" style={{textAlign:"center"}}>Результат</Typography>
                       <canvas id="circle"></canvas>
                     </div>
                     <span>{result}</span>
                   </div>
-              </Grid>
-            </Grid>
-          </Paper>
+                  </Paper>
+              </>
+            
         </Grid>:
         <Grid item xs={12} style={{textAlign:"center"}}>
           <Paper elevation={7} style={{minHeight:"50vh"}}><CircularProgress style={{marginTop:"25vh"}}/></Paper>

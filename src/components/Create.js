@@ -11,10 +11,22 @@ import {
   Tooltip,
   FormControlLabel,
   Toolbar,
+  Paper,
 } from "@material-ui/core"
-
+import {  makeStyles } from '@material-ui/core/styles';
 import Alert from './Alert'
+import ReCAPTCHA from "react-google-recaptcha"
+
+const useStyle = makeStyles((theme)=>({
+  paper:{
+    padding: theme.spacing(1),
+    margin:theme.spacing(1)
+  }
+}))
+
+
 const Create = ({setActive}) => {
+  const style = useStyle()
   const [tests, setTests] = useState([])
   const [emptyTestTitle,setEmptyTestTitle] = useState([])
   const [emptyVariantTitle,setEmptyVariantTitle] = useState([])
@@ -25,6 +37,7 @@ const Create = ({setActive}) => {
   const [linkAccess,setLinkAccess] = useState(false)
   const [testTitle, setTestTitle] = useState("")
   const [step, setStep] = useState(0)
+  const [validRecaptcha,setValidRecaptcha] = useState(false)
   const ref = useRef()
 
   const addTitle = useCallback(() => {
@@ -134,24 +147,24 @@ const Create = ({setActive}) => {
       }
   },500),[tests,characterLimitExceededVariant])
   const createTest = useCallback(()=>{
-    let check = true
+    let checked = true
     setError(null)
     setEmptyTestTitle([])
     setEmptyVariantTitle([])
     let array = [...tests]
     array.forEach((test,index)=>{
       if(!test.title.trim()){
-        check = false
+        checked = false
         setEmptyTestTitle(prev => [...prev,index+1])
       }
       test.variants.forEach((variant,i)=>{
         if(!variant.title.trim()){
-          check = false
+          checked = false
           setEmptyVariantTitle(prev=>[...prev,{test:index+1,variant:i+1}])
         }
       })
     })
-    if(!characterLimitExceededTitle.length && !characterLimitExceededVariant.length && check ){
+    if(!characterLimitExceededTitle.length && !characterLimitExceededVariant.length && checked && validRecaptcha ){
       fetch('/api/test/create',{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tests,testTitle,showCorrect,linkAccess})})
       .then(async(res)=>{
         if(res.ok){
@@ -161,15 +174,21 @@ const Create = ({setActive}) => {
           setError("Произошла неизвестна ошибка при сохранении тест")
         }
       })
-      console.log(tests)
     }
-  },[tests,testTitle,showCorrect,setActive,characterLimitExceededTitle.length,characterLimitExceededVariant.length,linkAccess])
+  },[tests,testTitle,showCorrect,setActive,characterLimitExceededTitle.length,characterLimitExceededVariant.length,linkAccess,validRecaptcha])
 
   const showCorrectAnswers = useCallback(()=>{
     setShowCorrect(prev=> !prev)
   },[])
   const changeLinkAccess = useCallback(()=>{
     setLinkAccess(prev => !prev)
+  },[])
+
+  const recaptcha = useCallback(()=>{
+    setValidRecaptcha(true)
+  },[])
+  const expiredRecaptcha = useCallback(()=>{
+    setValidRecaptcha(false)
   },[])
   return (
     <div>
@@ -179,8 +198,9 @@ const Create = ({setActive}) => {
         justify="center"
         style={{ minHeight: "50vh", flexWrap: "nowrap" }}
       >
-        <Grid lg={6} item>
+        <Grid sm={10} item>
           {step === 0 ? (
+            <Paper elevation={7} style={{width:"100%",minHeight:"30vh",padding:"15px",margin:"3px",display:"flex",alignItems:"center"}}> 
             <FormControl fullWidth>
               <TextField
                 inputRef={ref}
@@ -199,11 +219,13 @@ const Create = ({setActive}) => {
               </Button>
               <small>Названиет теста от 5 до 120 символов</small>
             </FormControl>
+            </Paper>
           ) : (
             <>
               {tests.length
                 ? tests.map((test, i) => (
-                    <Box key={test.id} style={{ margin: "8px" }}>
+                  <Paper key={test.id} elevation={7} className={style.paper}>
+                    <Box style={{ margin: "8px" }}>
                       <Toolbar style={{ padding: "0" }} variant="dense">
                         <Typography style={{ flexGrow: "1" }} variant="h6">
                           №{i + 1}
@@ -259,9 +281,10 @@ const Create = ({setActive}) => {
                         +
                       </Button>
                     </Box>
+                    </Paper>
                   ))
                 : ""}
-
+              <Paper elevation={7} className={style.paper}>
               <FormControlLabel
                 label="Показывать правильные ответы после завершения теста"
                 control={<Checkbox checked={showCorrect} onChange={showCorrectAnswers} />}
@@ -279,10 +302,12 @@ const Create = ({setActive}) => {
                 Добавить вопрос
               </Button>
               {tests.length ? <Button variant="contained" onClick={createTest}  fullWidth style={{background:"lime", }}>Создать тест</Button>:""}
+              <div style={{marginTop:"4px"}}><ReCAPTCHA sitekey="6LdCqbYbAAAAAKPcfcFUHPrEfBchHSOJlBaG3U0-" onExpired={expiredRecaptcha} onChange={recaptcha}/></div>
               {emptyTestTitle.length?<Alert variant="error">Пропущенно название вопроса {emptyTestTitle.map((em,i)=>(<span key={i} style={{marginLeft:"8px"}}>№{em}</span>))}</Alert>:""}
               {emptyVariantTitle.length ? <Alert variant="error">Пропущен{emptyVariantTitle.map((v,i)=>(<span key={i} style={{marginLeft:"8px"}}>вариант ответа <span style={{fontWeight:"900"}}>№{v.variant}</span> в вопросе <span style={{fontWeight:"900"}}>№{v.test}</span>,</span>))}</Alert>:""}
               {characterLimitExceededTitle.length? <Alert variant="error">В каком-то вопросе превышенно колличество символов</Alert>:""}
               {error ? <Alert variant="error">{error}</Alert>:""}
+              </Paper>
             </>
           )}
         </Grid>

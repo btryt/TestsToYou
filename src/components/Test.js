@@ -45,19 +45,20 @@ const Test = ({ match }) => {
   useEffect(()=>{
     if(localStorage.getItem("answer")){
       let answers = JSON.parse(localStorage.getItem("answer"))
-      answers.forEach(val=>{
-        if(tests.some(el=> el.id !== val.testId)){
-           localStorage.removeItem("answer") 
-        }
-        else{
-          setCorrectAnswers(JSON.parse(localStorage.getItem("answer")))
-        }
-      })
+      
+      if(answers && tests.length){
+        answers.forEach(val=>{
+          if(val.testId === tests.find(el=> el.id === val.testId)?.id){
+            setCorrectAnswers(JSON.parse(localStorage.getItem("answer")))
+          }
+        })
+    }
     }
   },[tests])
+
   const changeAnswer = useCallback((testId,variantId)=>{
     let array = [...correctAnswers]
-      localStorage.removeItem("answer")
+      // localStorage.removeItem("answer")
       if(correctAnswers.length){
           let index = correctAnswers.findIndex(answer=> answer.testId === testId)
           if(index !== -1){
@@ -73,11 +74,12 @@ const Test = ({ match }) => {
       }
       setCorrectAnswers(array)
       localStorage.setItem("answer",JSON.stringify(array))
+      
   },[correctAnswers])
 
   const nextStep = useCallback(()=>{
     setEmptyAnswer(false)
-    if(tests.length === correctAnswers.length){
+    if((tests.length === correctAnswers.length) && correctAnswers.length){
       return setStep(1)
     }
     setEmptyAnswer(true)
@@ -85,7 +87,7 @@ const Test = ({ match }) => {
 
   const finishTest = useCallback(()=>{
     setError("")
-    if(ref.current.value.trim() && ref.current.value.trim().length <= 15){ 
+    if(ref.current.value.trim() && ref.current.value.trim().length <= 15 && correctAnswers.length){ 
       let name = ref.current.value.trim()
       localStorage.removeItem("answer")
       fetch("/api/test/finish",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({testId,name,answers:correctAnswers})})
@@ -101,6 +103,7 @@ const Test = ({ match }) => {
       })
     }
   },[testId,correctAnswers,history])
+
   return (
     <Container style={{ marginTop: "4px" }}>
       <Modal style={{display:"flex",justifyContent:"center",alignItems:"center"}} onClose={()=>setStep(0)} open={step === 1}>
@@ -110,16 +113,17 @@ const Test = ({ match }) => {
         <small>Максимум 15 символов</small>
         </Paper>
       </Modal>
-      <Grid container>
+      <Grid  container>
        {loaded ?<Grid xs={12} item>
-          <Paper elevation={7}>
-            <Typography style={{ textAlign: "center",wordBreak:"break-word" }} variant="h5">
+            <Paper elevation={7}>
+            <Typography style={{ textAlign: "center",wordBreak:"break-word",padding:"5px 0 5px 0" }} variant="h5">
               {title}
             </Typography>
-            <Grid justify="center" container>
-              <Grid lg={7} item>
+            </Paper>
+            <>
                 {tests.length && tests.map((test, i) => (
-                  <Box style={{ margin: "8px" }} key={test.id}>
+                  <Paper elevation={7} style={{width:"100%"}} key={test.id}>
+                  <Box style={{ margin: "8px" }} >
                     <Toolbar variant="dense">
                       <Typography style={{wordBreak:"break-word"}} variant="h6">№{i + 1} {test.title}</Typography>
                     </Toolbar>
@@ -135,13 +139,14 @@ const Test = ({ match }) => {
                       </Box>
                     ))}
                   </Box>
+                  </Paper>
                 ))}
                 {step === 0 &&<Button onClick={nextStep} fullWidth style={{justifyContent:"center"}} variant="contained" color="primary">Завершить тест</Button>}
                 {emptyAnswer && <Alert variant="error">Вы ответили не на все вопросы</Alert>}
                 {error && <Alert variant="error">{error}</Alert>}
-              </Grid>
-            </Grid>
-          </Paper>
+              
+            </>
+          
         </Grid>:<Grid xs={12} item style={{textAlign:"center"}}><Paper elevation={7} style={{minHeight:"50vh"}}><CircularProgress style={{marginTop:"25vh"}}/></Paper></Grid>}
       </Grid>
     </Container>

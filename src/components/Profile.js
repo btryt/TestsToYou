@@ -1,5 +1,5 @@
 import React, { useState,useCallback } from "react"
-import { Container, Paper, Grid, Tabs,Tab,TabPanel,TabContext } from "@material-ui/core"
+import { Container, Paper, Grid, Tabs,Tab } from "@material-ui/core"
 import { makeStyles } from "@material-ui/core/styles"
 import EnhancedTable from "./MyTests"
 import Create from "./Create"
@@ -32,9 +32,9 @@ const changeHandler = useCallback((e,newValue) =>{
                 <Tab className={styles.tabs} label="Создать тест" />
             </Tabs>
             </Paper>
-            <Paper elevation={7} style={{marginTop:"5px"}}>
+            
               {active === 0 ? <EnhancedTable  /> : <Create setActive={setActive}/>}
-            </Paper>
+            
           </Grid>
         </Grid>
       </Container>

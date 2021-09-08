@@ -60,6 +60,7 @@ const Header = () =>{
             }
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
               <MenuItem onClick={handleClose}><Link to="/profile">Профиль</Link></MenuItem>
+              <MenuItem onClick={handleClose}><Link to="/find">Поиск</Link></MenuItem>
               <MenuItem onClick={handleClose}><a onClick={logOut} href="/#">Выйти</a></MenuItem>
             </Menu>
           </Toolbar>

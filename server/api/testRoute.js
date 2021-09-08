@@ -111,7 +111,7 @@ router.post("/test/finish",authMiddleware,async (req,res)=>{
         
   const percentages = count * 100 / test.rows[0].tests.length
   await db.query("INSERT INTO finish_test (name,testid,url,result,percentages,answers) VALUES ($1,$2,$3,$4,$5,$6::jsonb[])",
-   [body.name,body.testId,url,`${count}/${test.rows[0].tests.length}`,percentages.toFixed(),[...body.answers]])
+   [body.name,body.testId,url,`${count}/${test.rows[0].tests.length}`,percentages.toFixed(1),[...body.answers]])
    res.send({url})
   }
   catch(e){

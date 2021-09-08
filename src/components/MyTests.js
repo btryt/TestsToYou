@@ -50,6 +50,7 @@ const useStyles = makeStyles((theme) => ({
   paper: {
     width: '100%',
     marginBottom: theme.spacing(2),
+    marginTop:theme.spacing(1)
   },
   table: {
     minWidth: 750,
@@ -146,13 +147,13 @@ function EnhancedTable() {
 
   const getResults = (id)=>{
     setOpen(true)
-    console.log(id)
+    
     setTestId(id)
   }
   return (
     <div className={classes.root}>
       <Results open={open} id={testId} setOpen={setOpen} />
-      <Paper className={classes.paper}>
+      <Paper className={classes.paper} elevation={7}>
         <EnhancedTableToolbar setDeleted={setDeleted} selected={selected} setSelected={setSelected} numSelected={selected.length} />
         <TableContainer>
           <Table
