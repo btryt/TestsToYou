@@ -9,7 +9,8 @@ const useStyles = makeStyles(theme =>({
         width:"100%"
     },
     container:{
-        marginTop:theme.spacing(1)
+        marginTop:theme.spacing(1),
+        
     }
 }))
 
@@ -26,7 +27,7 @@ const changeHandler = useCallback((e,newValue) =>{
       <Container className={styles.container} >
         <Grid container spacing={1} justify="center">
           <Grid xs={11} item>
-            <Paper  >
+            <Paper >
             <Tabs onChange={changeHandler} variant="fullWidth" value={active} >
                 <Tab className={styles.tabs} label="Мои тесты" />
                 <Tab className={styles.tabs} label="Создать тест" />

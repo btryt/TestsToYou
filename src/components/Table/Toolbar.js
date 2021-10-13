@@ -40,7 +40,7 @@ const useToolbarStyles = makeStyles((theme) => ({
       },[selected,setDeleted,setSelected])
   
     return (
-      <Toolbar
+      <Toolbar 
         className={clsx(classes.root, {
           [classes.highlight]: numSelected > 0,
         })}
@@ -60,11 +60,7 @@ const useToolbarStyles = makeStyles((theme) => ({
             <Button onClick={deleteTest} variant="outlined">X</Button>
           </>
           
-        ) : (
-          <>
-            <Button></Button>
-          </>
-        )}
+        ) : ""}
       </Toolbar>
     );
   };

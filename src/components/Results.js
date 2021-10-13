@@ -26,6 +26,7 @@ const Results = ({id,open,setOpen}) =>{
     const [columns,setColumns] = useState([{field:"name",headerName:"Имя",width:150,editable: false},
     {field:"percentages",headerName:"Процент",width:150,editable: false,type: 'number'},
     {field:"result",headerName:"Результат",width:150,editable: false},
+    {field:"finish_time",headerName:"Время завершения",width:220,editable: false},
     {field:"url",headerName:"Ссылка на результат",editable:false,width:260,renderCell:(params)=><Link to={`result/${params.value}`}>http://localhost/test/result/{params.value}</Link>}])
     
     useEffect(()=>{
@@ -67,7 +68,7 @@ const Results = ({id,open,setOpen}) =>{
     },[selected])
     return (
     <Modal style={{display:"flex",justifyContent:"center",alignItems:"center"}} onClose={onClose} open={open}>
-        <Paper className={classes.root} >
+        <Paper className={classes.root}  >
          {selected.length ? <Button onClick={deleteResult} style={{position:"absolute",right:'3px',top:'3px'}} variant="contained" color="secondary">Удалить результат</Button>:""}
             <DataGrid components={{NoRowsOverlay:NoRowsOverlay}} style={{height:"420px",marginTop:"40px"}} loading={loading} hideFooterSelectedRowCount onSelectionModelChange={onSelected} rows={results} columns={columns} pageSize={5} checkboxSelection disableSelectionOnClick/>
         </Paper> 

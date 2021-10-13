@@ -16,7 +16,7 @@ function EnhancedTableHead(props) {
       onRequestSort(event, property);
     };
     return (
-      <TableHead>
+      <TableHead >
         <TableRow>
           <TableCell padding="checkbox">
             <Checkbox

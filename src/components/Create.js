@@ -261,7 +261,7 @@ const Create = ({setActive}) => {
                             </div>
                             <div
                               onClick={() => deleteVariant(test.id, variant.id)}
-                              style={{ cursor: "pointer", marginLeft: "4px" }}
+                              style={{ cursor: "pointer", marginLeft: "4px",color:"red" }}
                             >
                               &#10296;
                             </div>

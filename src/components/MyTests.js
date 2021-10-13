@@ -151,11 +151,11 @@ function EnhancedTable() {
     setTestId(id)
   }
   return (
-    <div className={classes.root}>
-      <Results open={open} id={testId} setOpen={setOpen} />
-      <Paper className={classes.paper} elevation={7}>
-        <EnhancedTableToolbar setDeleted={setDeleted} selected={selected} setSelected={setSelected} numSelected={selected.length} />
-        <TableContainer>
+    <div className={classes.root} >
+      <Results open={open} id={testId} setOpen={setOpen}  />
+      <Paper className={classes.paper}  elevation={7}>
+        <EnhancedTableToolbar setDeleted={setDeleted} selected={selected} setSelected={setSelected} numSelected={selected.length}  />
+        <TableContainer >
           <Table
             className={classes.table}
             aria-labelledby="tableTitle"
@@ -193,8 +193,8 @@ function EnhancedTable() {
                           inputProps={{ 'aria-labelledby': labelId }}
                         />
                       </TableCell>
-                      <TableCell style={{wordBreak:"break-word",maxWidth:"300px"}} component="th" id={labelId} scope="row" padding="default">
-                        {row.title}
+                      <TableCell style={{wordBreak:"break-word",maxWidth:"300px"}}  id={labelId} scope="row" padding="default">
+                        <span>{row.title}</span>
                       </TableCell>
                       <TableCell><Link to={`/test/${row.url}`}>http://localhost/test/{row.url}</Link></TableCell>
                       <TableCell><Button variant="outlined" onClick={()=>getResults(row.id)}>Информация</Button></TableCell>
@@ -221,10 +221,12 @@ function EnhancedTable() {
           onChangeRowsPerPage={handleChangeRowsPerPage}
         />
       </Paper>
+      <Paper elevation={7}>
       <FormControlLabel
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Убрать отступы в таблице"
       />
+      </Paper>
     </div>
   );
 }

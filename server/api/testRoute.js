@@ -110,8 +110,9 @@ router.post("/test/finish",authMiddleware,async (req,res)=>{
         })
         
   const percentages = count * 100 / test.rows[0].tests.length
-  await db.query("INSERT INTO finish_test (name,testid,url,result,percentages,answers) VALUES ($1,$2,$3,$4,$5,$6::jsonb[])",
-   [body.name,body.testId,url,`${count}/${test.rows[0].tests.length}`,percentages.toFixed(1),[...body.answers]])
+  await db.query("INSERT INTO finish_test (name,testid,url,result,percentages,answers,finish_time) VALUES ($1,$2,$3,$4,$5,$6::jsonb[],$7)",
+   [body.name,body.testId,url,`${count}/${test.rows[0].tests.length}`,percentages.toFixed(1),[...body.answers],
+   `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`])
    res.send({url})
   }
   catch(e){
@@ -149,7 +150,8 @@ router.get("/test/result/:url",async (req,res)=>{
 router.get("/test/results",authMiddleware,async(req,res)=>{
   const id = req.query.id
   try{
-    const finishedTests = await db.query("SELECT name,percentages,result,url,id,testid FROM finish_test WHERE testid = (SELECT id FROM tests WHERE userid = $1 AND id = $2)",[req.session.userId,id])
+    const finishedTests = await db.query("SELECT name,percentages,result,url,id,testid,to_char(finish_time,'YYYY-MM-DD HH24:MI:SS') AS finish_time FROM finish_test WHERE testid = (SELECT id FROM tests WHERE userid = $1 AND id = $2)",[req.session.userId,id])
+    
     
     res.send(finishedTests.rows)
   }

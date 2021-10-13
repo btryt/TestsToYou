@@ -20,3 +20,35 @@
   background-color: lawngreen;
   color: black;
 }
+.theme .MuiPaper-root{
+  background-color: #2B2B2B;
+}
+.theme .MuiPaper-root .menu-link {
+  color: black;
+}
+.theme .MuiPaper-root span,
+.theme .MuiPaper-root h1,
+.theme .MuiPaper-root h2,
+.theme .MuiPaper-root h3,
+.theme .MuiPaper-root h4,
+.theme .MuiPaper-root h5,
+.theme .MuiPaper-root h6, 
+.theme .MuiPaper-root p,
+.theme .MuiPaper-root table,
+.theme .MuiPaper-root a,
+.theme .MuiPaper-root small,
+.theme > .MuiPaper-root div, 
+.theme .MuiDataGrid-root div,
+.theme .change_theme,
+.theme .MuiTypography-root{
+  color:white;
+  border-color: white;
+}
+.theme .MuiPaper-root button{
+  border-color: white;
+}
+
+.theme .MuiPaper-root input {
+  background: white;
+  border-radius: 5px;
+}
