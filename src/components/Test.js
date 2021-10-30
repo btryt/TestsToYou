@@ -11,7 +11,8 @@ import {
   Button,
   Modal,
   TextField,
-  CircularProgress
+  CircularProgress,
+  Checkbox
 } from "@material-ui/core"
 import Alert from "./Alert"
 import { useHistory } from "react-router-dom"
@@ -58,24 +59,41 @@ const Test = ({ match }) => {
 
   const changeAnswer = useCallback((testId,variantId)=>{
     let array = [...correctAnswers]
-      // localStorage.removeItem("answer")
-      if(correctAnswers.length){
-          let index = correctAnswers.findIndex(answer=> answer.testId === testId)
-          if(index !== -1){
-            array[index].variant.correct = true
-            array[index].variant.id = variantId
+    let testIndex = tests.findIndex(t=> t.id === testId)
+    
+    if(correctAnswers.length){
+      let index = correctAnswers.findIndex(el=> el.testId === testId)
+      
+      if(index !== -1){
+        let variantIndex = array[index].variants.findIndex(el=>el.id === variantId)
+        if(tests[testIndex].multiple){
+          console.log('varI',variantIndex)
+          if(variantIndex !== -1){
+          if(array[index].variants.filter(el=>el.correct===true).length > 1 && array[index].variants[variantIndex].correct){
+
+            array[index].variants.splice(variantIndex,1)
           }
-          else{
-              array.push({testId,variant:{id:variantId,correct:true}})
-          }
+        }
+        else{
+          array[index].variants.push({id:variantId,correct: true})
+        }
+      }
+      else {
+        array[index].variants.splice(variantIndex,1)
+        array[index].variants.push({id:variantId,correct:true})
+      }
       }
       else{
-          array.push({testId,variant:{id:variantId,correct:true}})
+        array.push({testId:testId,variants:[{id:variantId,correct: true}]})
       }
+    }
+    else{
+      array.push({testId:testId,variants:[{id:variantId,correct: true}]})
+    }
       setCorrectAnswers(array)
       localStorage.setItem("answer",JSON.stringify(array))
       
-  },[correctAnswers])
+  },[correctAnswers,tests])
 
   const nextStep = useCallback(()=>{
     setEmptyAnswer(false)
@@ -104,6 +122,7 @@ const Test = ({ match }) => {
     }
   },[testId,correctAnswers,history])
 
+
   return (
     <Container style={{ marginTop: "4px" }}>
       <Modal style={{display:"flex",justifyContent:"center",alignItems:"center"}} onClose={()=>setStep(0)} open={step === 1}>
@@ -131,8 +150,10 @@ const Test = ({ match }) => {
                       <Box key={variant.id}>
                         <Toolbar variant="dense">
                           <FormControl>
-                            <Radio style={{color:correctAnswers.some(answer => answer.testId === test.id && answer.variant.id === variant.id) && "#00D5FF"}} color="default" checked={correctAnswers.some(answer => answer.testId === test.id && answer.variant.id === variant.id)} 
-                            onChange={()=>changeAnswer(test.id,variant.id)} />
+                            {!test.multiple ?
+                            <Radio  color="default" onChange={()=>changeAnswer(test.id,variant.id)}  checked={correctAnswers.length ? correctAnswers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id === variant.id)):false} />
+                            :<Checkbox  onChange={()=>changeAnswer(test.id,variant.id)} checked={correctAnswers.length ?correctAnswers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id === variant.id)) :false} />
+                            }
                           </FormControl>
                           <span style={{wordBreak:"break-word"}}>{variant.title}</span>
                         </Toolbar>
@@ -153,4 +174,4 @@ const Test = ({ match }) => {
   )
 }
 
-export default Test
+export default React.memo(Test)

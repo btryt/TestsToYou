@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from "react"
+import React, { useRef, useState, useCallback, useEffect } from "react"
 import debounce from 'lodash.debounce'
 import {
   TextField,
@@ -24,10 +24,11 @@ const useStyle = makeStyles((theme)=>({
   }
 }))
 
-
+let testData = []
 const Create = ({setActive}) => {
   const style = useStyle()
   const [tests, setTests] = useState([])
+  const [testVariants,setTestVariants] = useState([])
   const [emptyTestTitle,setEmptyTestTitle] = useState([])
   const [emptyVariantTitle,setEmptyVariantTitle] = useState([])
   const [characterLimitExceededTitle,setCharacterLimitExceededTitle] = useState([])
@@ -39,6 +40,10 @@ const Create = ({setActive}) => {
   const [step, setStep] = useState(0)
   const [validRecaptcha,setValidRecaptcha] = useState(false)
   const ref = useRef()
+
+  useEffect(()=>{
+    testData = []
+  },[])
 
   const addTitle = useCallback(() => {
     if (ref.current.value.trim() && ref.current.value.trim().length <= 120 && ref.current.value.trim().length >= 5) {
@@ -62,20 +67,27 @@ const Create = ({setActive}) => {
           arrayCharracter.splice(index,1)
           setCharacterLimitExceededTitle(arrayCharracter)
         }
-        array[testIndex].title = e.target.value.trim()
-        setTests(array)
+        testData[testIndex].title = e.target.value.trim()
+        
       }
-  },600)
+  },300)
   const addQuestion = useCallback(() => {
     if(tests.length <= 40){
+      const id = new Date().getTime()
+      const variantId = new Date().getTime()
       setTests((prev) => [
         ...prev,
         {
-          id: new Date().getTime(),
-          title: "",
-          variants: [{ id: new Date().getTime(), title: "", correct: true }],
+          id
         },
       ])
+      setTestVariants(prev=>[...prev,{testId:id,variants: [{ id: variantId }]}])
+      testData.push({
+        id,
+        title: "",
+        variants: [{ id: variantId, title: "", correct: true }],
+        multiple: false,})
+        
   }
   }, [tests.length])
   const deleteQuestion = useCallback(
@@ -83,53 +95,61 @@ const Create = ({setActive}) => {
       let array = [...tests]
       let testIndex = array.findIndex((test) => test.id === id)
       array.splice(testIndex,1)
+      testData.splice(testIndex,1)
       setTests(array)
     },
     [tests]
   )
+
   const addVariant = useCallback((id) => {
+      let dateId = new Date().getTime()
       let array = [...tests]
+      let variants = [...testVariants]
       let testIndex = array.findIndex((test) => test.id === id)
       
-      if(array[testIndex].variants.length === 4) return
+      if(testData[testIndex].variants.length === 4) return
 
-      array[testIndex].variants.push({
-         id: new Date().getTime(),
-         title: "",
-         correct: false,
-      })
-      setTests(array)
+      variants[testIndex].variants.push({id: dateId, correct: false})
+      
+      testData[testIndex].variants.push({id: dateId, title: "", correct: false})
+      setTestVariants(variants)
     },
-    [tests]
+    [testVariants,tests]
   )
   const deleteVariant = useCallback(
     (id, variantId) => {
       let array = [...tests]
       let testIndex = array.findIndex((test) => test.id === id)
-      let variantIndex = array[testIndex].variants.findIndex( (variant) => variant.id === variantId)
-      if(array[testIndex].variants.length === 1) return
-      array[testIndex].variants.splice(variantIndex, 1)
+      let variantIndex = testData[testIndex].variants.findIndex( (variant) => variant.id === variantId)
+      if(testData[testIndex].variants.filter((el)=>el.correct === true).length < 2 && testData[testIndex].variants.length > 1 && testData[testIndex].variants[variantIndex].correct) return 
+      if(testVariants[testIndex].variants.length === 1) return
+      testVariants[testIndex].variants.splice(variantIndex, 1)
+      testData[testIndex].variants.splice(variantIndex,1)
       setTests(array)
     },
-    [tests]
+    [tests,testVariants]
   )
   const setCorrectVariant = useCallback((id,variantId)=>{
     let array = [...tests]
+    
     let testIndex = array.findIndex((test) => test.id === id)
-    let variantIndex = array[testIndex].variants.findIndex( (variant) => variant.id === variantId)
-    array[testIndex].variants.forEach(variant=>{
-        if(variant.correct){
-            variant.correct = false
-        }
-    })
-    array[testIndex].variants[variantIndex].correct = !array[testIndex].variants[variantIndex].correct
-    setTests(array)
-  },[tests])
+    let variantIndex = testData[testIndex].variants.findIndex( (variant) => variant.id === variantId)
+    if(testData[testIndex].variants.filter((el)=>el.correct === true).length < 2 && testData[testIndex].variants.length > 1 && testData[testIndex].variants[variantIndex].correct) return 
 
+    if(testData[testIndex].variants.length > 1){ 
+      testData[testIndex].variants[variantIndex].correct = !testData[testIndex].variants[variantIndex].correct
+      
+    }
+    
+    testData[testIndex].multiple = testData[testIndex].variants.filter((el)=>el.correct === true).length > 1 ? true : false
+    setTests(array)
+    
+  },[tests])
+    
   const changeTestVariantTitle = useCallback(debounce((e,id,variantId)=>{
       let array = [...tests]
       let testIndex = array.findIndex((test) => test.id === id)
-      let variantIndex = array[testIndex].variants.findIndex( (variant) => variant.id === variantId)
+      let variantIndex = testVariants[testIndex].variants.findIndex( (variant) => variant.id === variantId)
       if(e.target.value.trim().length >= 150){
         if(!characterLimitExceededVariant.some(ch=> ch.id === variantId)){
           setCharacterLimitExceededVariant(prev => [...prev,{id:variantId}])
@@ -142,16 +162,16 @@ const Create = ({setActive}) => {
           arrayCharacterVariant.splice(index,1)
           setCharacterLimitExceededVariant(arrayCharacterVariant)
         }
-        array[testIndex].variants[variantIndex].title = e.target.value.trim()
-        setTests(array)
+        testData[testIndex].variants[variantIndex].title = e.target.value.trim()
+        
       }
-  },500),[tests,characterLimitExceededVariant])
+  },300),[characterLimitExceededVariant,testVariants])
   const createTest = useCallback(()=>{
     let checked = true
     setError(null)
     setEmptyTestTitle([])
     setEmptyVariantTitle([])
-    let array = [...tests]
+    let array = [...testData]
     array.forEach((test,index)=>{
       if(!test.title.trim()){
         checked = false
@@ -165,7 +185,7 @@ const Create = ({setActive}) => {
       })
     })
     if(!characterLimitExceededTitle.length && !characterLimitExceededVariant.length && checked && validRecaptcha ){
-      fetch('/api/test/create',{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tests,testTitle,showCorrect,linkAccess})})
+      fetch('/api/test/create',{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tests:testData,testTitle,showCorrect,linkAccess})})
       .then(async(res)=>{
         if(res.ok){
           setActive(0)
@@ -175,7 +195,7 @@ const Create = ({setActive}) => {
         }
       })
     }
-  },[tests,testTitle,showCorrect,setActive,characterLimitExceededTitle.length,characterLimitExceededVariant.length,linkAccess,validRecaptcha])
+  },[testTitle,showCorrect,setActive,characterLimitExceededTitle.length,characterLimitExceededVariant.length,linkAccess,validRecaptcha])
 
   const showCorrectAnswers = useCallback(()=>{
     setShowCorrect(prev=> !prev)
@@ -190,6 +210,10 @@ const Create = ({setActive}) => {
   const expiredRecaptcha = useCallback(()=>{
     setValidRecaptcha(false)
   },[])
+
+  useEffect(()=>{
+    console.log(testData)
+  },[tests])
   return (
     <div>
       <Grid
@@ -242,12 +266,12 @@ const Create = ({setActive}) => {
                       <TextField onChange={(e)=>changeTestTitle(e,test.id)} margin="dense" fullWidth label="Вопрос" variant="outlined" />
                       {characterLimitExceededTitle.some(cr=>cr.id === test.id) && <small style={{color:"red"}}>Уменьньшите длину вопроса до 210 символов</small>}
                       <p style={{ margin: "4px" }}>Варианты ответа</p>
-                      {test.variants.map((variant, i) => (
+                      {testVariants.find(el=>el.testId === test.id).variants.map((variant, i) => (
                         <Box key={variant.id}>
                           <Toolbar style={{ padding: "0", margin: "0" }}>
                             <Tooltip title="Правильный ответ">
                              <FormControl>
-                                 <FormControlLabel labelPlacement="bottom" label="Правильный" control={<Checkbox onChange={()=>setCorrectVariant(test.id,variant.id)} checked={variant.correct} />}/>
+                                 <FormControlLabel labelPlacement="bottom" label="Правильный" control={<Checkbox onChange={()=>setCorrectVariant(test.id,variant.id)} checked={testData.length && testData.find(el=> el.id === test.id).variants.find(vl=>vl.id === variant.id).correct} />}/>
                             </FormControl>
                             </Tooltip>
                             <div style={{display:"flex",flexDirection:"column"}}>

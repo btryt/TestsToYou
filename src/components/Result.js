@@ -7,7 +7,8 @@ import {
   FormControl,
   Radio,
   Typography,
-  CircularProgress
+  CircularProgress,
+  Checkbox
 } from "@material-ui/core"
 import React, { useEffect, useState } from "react"
 import { useHistory } from "react-router-dom"
@@ -93,10 +94,21 @@ const Result = ({match}) => {
                         <Box key={variant.id}>
                           <Toolbar variant="dense">
                             <FormControl style={{flexShrink:0}}>
-                              <Radio disabled checked={answers.some(answer => answer.testId === test.id && answer.variant.id === variant.id)} />
+                               {test.multiple ? <Checkbox disabled checked={answers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id === variant.id))}  /> :
+                                <Radio disabled checked={answers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id === variant.id))} />
+                                }
                             </FormControl>
-                            {showCorrectAnswer ? <p style={{ wordBreak: "break-all",color:`${answers.some(v=> v.testId === test.id && variant.id === v.variant.id && variant.correct)?"lime":
-                            answers.some(v=> v.testId === test.id && variant.id === v.variant.id && !variant.correct)?"red":answers.some(v=> v.testId === test.id && variant.id !== v.variant.id && variant.correct)?"lime":""}`}}>{variant.title}
+                            {showCorrectAnswer ? <p style={{ wordBreak: "break-all",color:`${test.multiple ? 
+                            (answers.some(answer => answer.testId === test.id && test.variants.some(tv=> tv.id === variant.id && tv.correct))  
+                            ? "lime" : 
+                            answers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id !== variant.id && variant.correct))  
+                            ? "red"   : 
+                            answers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id === variant.id && !variant.correct)) ? "red" :""   )
+
+                            :answers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id === variant.id && variant.correct))
+                            ?"lime":answers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id === variant.id && !variant.correct))
+                            ?"red":answers.some(answer => answer.testId === test.id && test.variants.some(tv=> tv.id === variant.id && tv.correct) )
+                            ?"lime":""}`}}>{variant.title}
                             </p> :<p>{variant.title}</p>}
                           </Toolbar>
                         </Box>
@@ -114,7 +126,7 @@ const Result = ({match}) => {
                   </div>
                   </Paper>
               </>
-            
+              
         </Grid>:
         <Grid item xs={12} style={{textAlign:"center"}}>
           <Paper elevation={7} style={{minHeight:"50vh"}}><CircularProgress style={{marginTop:"25vh"}}/></Paper>
@@ -124,4 +136,4 @@ const Result = ({match}) => {
   )
 }
 
-export default Result
+export default React.memo(Result)

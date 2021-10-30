@@ -25,6 +25,7 @@ router.get("/test/find/:url",async(req,res)=>{
   let url = req.params.url
   try{
     const test = await db.query("SELECT tests,title,id FROM tests WHERE url = $1",[url])
+    
     if(test.rows.length){
       let rows = test.rows[0]
       forEach(rows.tests,(val)=>{
@@ -95,23 +96,28 @@ router.post("/test/delete",authMiddleware,async (req,res)=>{
   res.send(true)
 })
 
-router.post("/test/finish",authMiddleware,async (req,res)=>{
+router.post("/test/finish",async (req,res)=>{
   const body = req.body
   let count = 0
+  let total = 0
   try{
     const test = await db.query("SELECT tests,show_correct_answer FROM tests WHERE id = $1",[body.testId])
     const url = getHash(7)
         forEach(test.rows[0].tests,(val)=>{
             forEach(val.variants,(vr)=>{
-                if(body.answers.some(b=> b.testId === val.id && vr.id === b.variant.id && vr.correct)){
+                if(body.answers.some(b=> b.testId === val.id && b.variants.some(v=>v.id === vr.id) && vr.correct)){
                     count++ 
+                }
+                if(vr.correct){
+                  total++
                 }
             })
         })
         
-  const percentages = count * 100 / test.rows[0].tests.length
+  const percentages = (count * 100) / total 
+  
   await db.query("INSERT INTO finish_test (name,testid,url,result,percentages,answers,finish_time) VALUES ($1,$2,$3,$4,$5,$6::jsonb[],$7)",
-   [body.name,body.testId,url,`${count}/${test.rows[0].tests.length}`,percentages.toFixed(1),[...body.answers],
+   [body.name,body.testId,url,`${count}/${total}`,percentages.toFixed(1),[...body.answers],
    `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`])
    res.send({url})
   }
