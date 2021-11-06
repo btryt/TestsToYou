@@ -2,10 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {Modal, Paper,Button} from '@material-ui/core'
 import {makeStyles} from '@material-ui/core/styles'
-import {DataGrid,GridOverlay} from '@material-ui/data-grid'
+import {DataGrid} from '@material-ui/data-grid'
+import NoRowsOverlay from './NoRowsOverlay'
 
 
-const NoRowsOverlay = () => <GridOverlay><div>Список результатов пуст</div></GridOverlay>
 
 const useStyles = makeStyles((theme)=>({
     root:{
@@ -66,6 +66,7 @@ const Results = ({id,open,setOpen}) =>{
             })
         }
     },[selected])
+    
     return (
     <Modal style={{display:"flex",justifyContent:"center",alignItems:"center"}} onClose={onClose} open={open}>
         <Paper className={classes.root}  >

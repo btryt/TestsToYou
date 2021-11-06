@@ -146,7 +146,7 @@ const Create = ({setActive}) => {
     
   },[tests])
     
-  const changeTestVariantTitle = useCallback(debounce((e,id,variantId)=>{
+  const changeTestVariantTitle = debounce((e,id,variantId)=>{
       let array = [...tests]
       let testIndex = array.findIndex((test) => test.id === id)
       let variantIndex = testVariants[testIndex].variants.findIndex( (variant) => variant.id === variantId)
@@ -165,7 +165,7 @@ const Create = ({setActive}) => {
         testData[testIndex].variants[variantIndex].title = e.target.value.trim()
         
       }
-  },300),[characterLimitExceededVariant,testVariants])
+  },300)
   const createTest = useCallback(()=>{
     let checked = true
     setError(null)
@@ -211,9 +211,6 @@ const Create = ({setActive}) => {
     setValidRecaptcha(false)
   },[])
 
-  useEffect(()=>{
-    console.log(testData)
-  },[tests])
   return (
     <div>
       <Grid

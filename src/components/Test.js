@@ -151,7 +151,7 @@ const Test = ({ match }) => {
                         <Toolbar variant="dense">
                           <FormControl>
                             {!test.multiple ?
-                            <Radio  color="default" onChange={()=>changeAnswer(test.id,variant.id)}  checked={correctAnswers.length ? correctAnswers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id === variant.id)):false} />
+                            <Radio  color="secondary" onChange={()=>changeAnswer(test.id,variant.id)}  checked={correctAnswers.length ? correctAnswers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id === variant.id)):false} />
                             :<Checkbox  onChange={()=>changeAnswer(test.id,variant.id)} checked={correctAnswers.length ?correctAnswers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id === variant.id)) :false} />
                             }
                           </FormControl>
@@ -165,9 +165,7 @@ const Test = ({ match }) => {
                 {step === 0 &&<Button onClick={nextStep} fullWidth style={{justifyContent:"center"}} variant="contained" color="primary">Завершить тест</Button>}
                 {emptyAnswer && <Alert variant="error">Вы ответили не на все вопросы</Alert>}
                 {error && <Alert variant="error">{error}</Alert>}
-              
             </>
-          
         </Grid>:<Grid xs={12} item style={{textAlign:"center"}}><Paper elevation={7} style={{minHeight:"50vh"}}><CircularProgress style={{marginTop:"25vh"}}/></Paper></Grid>}
       </Grid>
     </Container>
