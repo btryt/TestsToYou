@@ -94,24 +94,25 @@ const Create = ({setActive}) => {
     (id) => {
       let array = [...tests]
       let testIndex = array.findIndex((test) => test.id === id)
+      testVariants.splice(testIndex,1)
       array.splice(testIndex,1)
       testData.splice(testIndex,1)
       setTests(array)
     },
-    [tests]
+    [tests,testVariants]
   )
 
   const addVariant = useCallback((id) => {
-      let dateId = new Date().getTime()
+      let variantId = new Date().getTime()
       let array = [...tests]
       let variants = [...testVariants]
       let testIndex = array.findIndex((test) => test.id === id)
       
       if(testData[testIndex].variants.length === 4) return
 
-      variants[testIndex].variants.push({id: dateId, correct: false})
+      variants[testIndex].variants.push({id: variantId})
       
-      testData[testIndex].variants.push({id: dateId, title: "", correct: false})
+      testData[testIndex].variants.push({id: variantId, title: "", correct: false})
       setTestVariants(variants)
     },
     [testVariants,tests]
@@ -120,11 +121,13 @@ const Create = ({setActive}) => {
     (id, variantId) => {
       let array = [...tests]
       let testIndex = array.findIndex((test) => test.id === id)
-      let variantIndex = testData[testIndex].variants.findIndex( (variant) => variant.id === variantId)
+      let variantIndex = testVariants[testIndex].variants.findIndex(v=>v.id === variantId)
       if(testData[testIndex].variants.filter((el)=>el.correct === true).length < 2 && testData[testIndex].variants.length > 1 && testData[testIndex].variants[variantIndex].correct) return 
       if(testVariants[testIndex].variants.length === 1) return
       testVariants[testIndex].variants.splice(variantIndex, 1)
       testData[testIndex].variants.splice(variantIndex,1)
+      testData[testIndex].multiple = testData[testIndex].variants.filter(v=> v.correct === true).length > 1 ? true : false
+      
       setTests(array)
     },
     [tests,testVariants]

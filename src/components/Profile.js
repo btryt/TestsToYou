@@ -1,7 +1,7 @@
 import React, { useState,useCallback } from "react"
 import { Container, Paper, Grid, Tabs,Tab } from "@material-ui/core"
 import { makeStyles } from "@material-ui/core/styles"
-import EnhancedTable from "./MyTests"
+import EnhancedTable from "./TestsList"
 import Create from "./Create"
 const useStyles = makeStyles(theme =>({
     tabs:{
