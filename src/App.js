@@ -10,12 +10,24 @@ import Context from './components/context/context'
 import { useEffect, useState } from "react"
 import Home from "./components/Home"
 import Find from "./components/Find"
+import {createMuiTheme,MuiThemeProvider} from '@material-ui/core/styles'
+
+let darkTheme = createMuiTheme({
+  palette:{
+    type:"dark",
+    text:{
+      primary:"#fff",
+      secondary:"#fff"
+    }
+  }
+})
+
 function App() {
   const [loaded,setLoaded] = useState(false)
   const [login,setLogin] = useState(0)
-  const [theme,setTheme] = useState(false)
   const [auth,setAuth] = useState(false)
-  
+  // const changeTheme = React.memo(()=>createMuiTheme(getTheme(theme)),[theme])
+
   useEffect(()=>{
     setLoaded(false)
     fetch("/api/auth")
@@ -25,12 +37,11 @@ function App() {
       setLoaded(true)
     })
   },[login])
-
- 
   return (
-    <Context.Provider value={{loaded,auth,setAuth,setTheme}}>
-      <Header  />
-      <div className={theme ? "theme":""}>
+    <Context.Provider value={{loaded,auth,setAuth}}>
+      <MuiThemeProvider theme={darkTheme} >
+      <Header />
+      
       <Switch>
         <Route path="/" exact component={Home}/>
         {(loaded && !auth) && <Route path="/login" render={()=><Login setLogin={setLogin} />} />}
@@ -39,7 +50,8 @@ function App() {
         <Route path="/find" component={Find}/>
         <Route path="/result/:url" component={Result} />
       </Switch>
-      </div>
+      
+    </MuiThemeProvider>
     </Context.Provider>
   )
 }

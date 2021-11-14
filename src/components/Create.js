@@ -13,7 +13,7 @@ import {
   Toolbar,
   Paper,
 } from "@material-ui/core"
-import {  makeStyles } from '@material-ui/core/styles';
+import {  makeStyles} from '@material-ui/core/styles';
 import Alert from './Alert'
 import ReCAPTCHA from "react-google-recaptcha"
 
@@ -21,6 +21,15 @@ const useStyle = makeStyles((theme)=>({
   paper:{
     padding: theme.spacing(1),
     margin:theme.spacing(1)
+  },
+  block:{
+    marginTop:"4px",
+    display:"flex",
+    flexDirection:"column",
+    width:"50%",
+    [theme.breakpoints.down('sm')]: {
+      width:"100%"
+    },
   }
 }))
 
@@ -29,6 +38,8 @@ const Create = ({setActive}) => {
   const style = useStyle()
   const [tests, setTests] = useState([])
   const [testVariants,setTestVariants] = useState([])
+  const [hideInput,setHideInput] = useState(false)
+  const [continueTest,setContinueTest] = useState(false)
   const [emptyTestTitle,setEmptyTestTitle] = useState([])
   const [emptyVariantTitle,setEmptyVariantTitle] = useState([])
   const [characterLimitExceededTitle,setCharacterLimitExceededTitle] = useState([])
@@ -43,7 +54,24 @@ const Create = ({setActive}) => {
 
   useEffect(()=>{
     testData = []
+    if(JSON.parse(localStorage.getItem("saved_test"))?.tests.length){
+      setHideInput(true)
+    }
   },[])
+
+  useEffect(()=>{
+    if(continueTest){
+      let savedTest = JSON.parse(localStorage.getItem("saved_test"))
+      setTests(savedTest.tests)
+      setTestTitle(savedTest.testTitle)
+      setTestVariants(savedTest.testVariants)
+      setLinkAccess(savedTest.linkAccess)
+      setShowCorrect(savedTest.showCorrect)
+      testData = savedTest.testData
+
+      setStep(1)
+    }
+  },[continueTest])
 
   const addTitle = useCallback(() => {
     if (ref.current.value.trim() && ref.current.value.trim().length <= 120 && ref.current.value.trim().length >= 5) {
@@ -200,6 +228,21 @@ const Create = ({setActive}) => {
     }
   },[testTitle,showCorrect,setActive,characterLimitExceededTitle.length,characterLimitExceededVariant.length,linkAccess,validRecaptcha])
 
+  const saveTest = useCallback(()=>{
+
+    localStorage.setItem("saved_test",JSON.stringify({tests,testVariants,linkAccess,showCorrect,testTitle,testData:testData}))
+  },[tests,testVariants,linkAccess,showCorrect,testTitle])
+
+  const continueTestHandler = useCallback(()=>{
+    setContinueTest(true)
+  },[])
+
+  const deleteSavedTest = useCallback(()=>{
+    localStorage.removeItem("saved_test")
+
+    setHideInput(false)
+  },[])
+
   const showCorrectAnswers = useCallback(()=>{
     setShowCorrect(prev=> !prev)
   },[])
@@ -213,7 +256,11 @@ const Create = ({setActive}) => {
   const expiredRecaptcha = useCallback(()=>{
     setValidRecaptcha(false)
   },[])
-
+  useEffect(()=>{
+    if(continueTest){
+      console.log(testData)
+    }
+  },[continueTest])
   return (
     <div>
       <Grid
@@ -224,8 +271,8 @@ const Create = ({setActive}) => {
       >
         <Grid sm={10} item>
           {step === 0 ? (
-            <Paper elevation={7} style={{width:"100%",minHeight:"30vh",padding:"15px",margin:"3px",display:"flex",alignItems:"center"}}> 
-            <FormControl fullWidth>
+            <Paper elevation={7} style={{width:"100%",minHeight:"30vh",padding:"15px",margin:"3px",display:"flex",alignItems:"center",flexDirection:"column",justifyContent:"center"}}> 
+            {!hideInput ? <FormControl fullWidth>
               <TextField
                 inputRef={ref}
                 fullWidth
@@ -242,7 +289,13 @@ const Create = ({setActive}) => {
                 Продолжить
               </Button>
               <small>Названиет теста от 5 до 120 символов</small>
-            </FormControl>
+            </FormControl> :
+            <div  className={`change_theme ${style.block}`} >
+              <span>У вас есть сохраненный тест <b>{JSON.parse(localStorage.getItem('saved_test')).testTitle}</b>, хотите продолжить его?</span>
+              <Button onClick={continueTestHandler} style={{margin:"4px"}} variant="contained" color="primary" >Да</Button>
+              <Button onClick={deleteSavedTest} style={{margin:"4px"}} variant="contained" color="secondary" >Нет</Button>
+            </div>
+            }
             </Paper>
           ) : (
             <>
@@ -263,7 +316,7 @@ const Create = ({setActive}) => {
                           X
                         </Button>
                       </Toolbar>
-                      <TextField onChange={(e)=>changeTestTitle(e,test.id)} margin="dense" fullWidth label="Вопрос" variant="outlined" />
+                      <TextField defaultValue={continueTest ? testData.find(t=>t.id === test.id).title : ""} onChange={(e)=>changeTestTitle(e,test.id)} margin="dense" fullWidth label="Вопрос" variant="outlined" />
                       {characterLimitExceededTitle.some(cr=>cr.id === test.id) && <small style={{color:"red"}}>Уменьньшите длину вопроса до 210 символов</small>}
                       <p style={{ margin: "4px" }}>Варианты ответа</p>
                       {testVariants.find(el=>el.testId === test.id).variants.map((variant, i) => (
@@ -280,6 +333,7 @@ const Create = ({setActive}) => {
                               margin="dense"
                               label="Вариант ответа"
                               variant="outlined"
+                              defaultValue={continueTest ? testData.find(t=>t.id === test.id).variants.find(v=>v.id === variant.id).title:""}
                             />
                             {characterLimitExceededVariant.some(cr=>cr.id === variant.id) && <small style={{color:"red"}}>Уменьшите длину варианта ответа до 150 символов</small>}
                             </div>
@@ -312,10 +366,12 @@ const Create = ({setActive}) => {
               <FormControlLabel
                 label="Показывать правильные ответы после завершения теста"
                 control={<Checkbox checked={showCorrect} onChange={showCorrectAnswers} />}
+                
               />
                <FormControlLabel
                 label="Доступ только по ссылке"
                 control={<Checkbox checked={linkAccess} onChange={changeLinkAccess} />}
+                
               />
               <Button
                 onClick={addQuestion}
@@ -326,7 +382,10 @@ const Create = ({setActive}) => {
                 Добавить вопрос
               </Button>
               {tests.length ? <Button variant="contained" onClick={createTest}  fullWidth style={{background:"lime", }}>Создать тест</Button>:""}
-              <div style={{marginTop:"4px"}}><ReCAPTCHA sitekey="6LdCqbYbAAAAAKPcfcFUHPrEfBchHSOJlBaG3U0-" onExpired={expiredRecaptcha} onChange={recaptcha}/></div>
+              {tests.length ? <div style={{display:"flex",justifyContent:"space-between",marginTop:"4px",flexWrap:"wrap",width:'100%'}}>
+                <Button onClick={saveTest} style={{width:'100%'}}  variant="contained" color="primary">Сохранить тест</Button>
+                <div ><ReCAPTCHA sitekey="6LdCqbYbAAAAAKPcfcFUHPrEfBchHSOJlBaG3U0-" onExpired={expiredRecaptcha} onChange={recaptcha}/></div>
+              </div>:""}
               {emptyTestTitle.length?<Alert variant="error">Пропущенно название вопроса {emptyTestTitle.map((em,i)=>(<span key={i} style={{marginLeft:"8px"}}>№{em}</span>))}</Alert>:""}
               {emptyVariantTitle.length ? <Alert variant="error">Пропущен{emptyVariantTitle.map((v,i)=>(<span key={i} style={{marginLeft:"8px"}}>вариант ответа <span style={{fontWeight:"900"}}>№{v.variant}</span> в вопросе <span style={{fontWeight:"900"}}>№{v.test}</span>,</span>))}</Alert>:""}
               {characterLimitExceededTitle.length? <Alert variant="error">В каком-то вопросе превышенно колличество символов</Alert>:""}

@@ -21,7 +21,7 @@ import { useHistory } from 'react-router-dom'
     paper:{
         padding:theme.spacing(2),
         height:"400px",
-        background:"#F5F5F5",
+        
         display:"flex",
         flexDirection:"column",
         justifyContent:"center",
