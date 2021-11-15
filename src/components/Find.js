@@ -1,4 +1,4 @@
-import React,{useCallback, useRef, useState} from 'react'
+import React,{useRef, useState} from 'react'
 import {Link} from 'react-router-dom'
 import debounce from 'lodash.debounce'
 import {Container,Grid,Paper,TextField,Typography} from '@material-ui/core'
@@ -8,7 +8,7 @@ const Find = () =>{
     const [list,setList] = useState([])
     const [loading,setLoading] = useState(false)
     const [columns,setColumns] = useState([{field:"title",headerName:"Название",width:230,editable: false},
-    {field:"url",headerName:"Ссылка",width:250,editable: false,renderCell:(params)=><Link to={`test/${params.value}`}>http://localhost/test/{params.value}</Link>}])
+    {field:"url",headerName:"Ссылка",width:250,editable: false,renderCell:(params)=><Link style={{color:"white"}} to={`test/${params.value}`}>http://localhost/test/{params.value}</Link>}])
     const findTest = debounce((e)=>{
         if(e.target.value.trim() && e.target.value.trim().length <=120){
             setLoading(true)
