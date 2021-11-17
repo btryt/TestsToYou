@@ -1,4 +1,4 @@
-import React,{useRef, useState} from 'react'
+import React,{useCallback, useEffect, useRef, useState} from 'react'
 import {Link} from 'react-router-dom'
 import debounce from 'lodash.debounce'
 import {Container,Grid,Paper,TextField,Typography} from '@material-ui/core'
@@ -6,20 +6,58 @@ import {DataGrid} from '@material-ui/data-grid'
 const Find = () =>{
     const ref = useRef()
     const [list,setList] = useState([])
+    const [title,setTitle] = useState('')
+    const [numberOfRows,setNumberOfRows] = useState(0)
     const [loading,setLoading] = useState(false)
     const [columns,setColumns] = useState([{field:"title",headerName:"Название",width:230,editable: false},
     {field:"url",headerName:"Ссылка",width:250,editable: false,renderCell:(params)=><Link style={{color:"white"}} to={`test/${params.value}`}>http://localhost/test/{params.value}</Link>}])
+    const [uploading,setUploading] = useState(0)
     const findTest = debounce((e)=>{
         if(e.target.value.trim() && e.target.value.trim().length <=120){
             setLoading(true)
-            fetch(`/api/find/test?title=${e.target.value.trim()}`)
+            setUploading(0)
+            setList([])
+            fetch(`/api/find/test?title=${e.target.value.trim()}&c=${uploading}`)
             .then(async res =>{
                 let response = await res.json()
-                if(res.ok) setList(response)
+                if(res.ok) {
+                    setNumberOfRows(response.numberOfRows)
+                    if(response.numberOfRows !== 0 && response.numberOfRows > 5 && (response.rows.length % 5 === 0) ){
+                        setList([...response.rows,{id:new Date().getTime(),title:"",url:""}])
+                    }
+                    else {
+                        setList([...response.rows])
+                    }
+                }
                 setLoading(false)
+                setTitle(e.target.value.trim())
             })
         }else setList([])
     },600)
+
+    const uploadingHandler = useCallback((p)=>{
+        setUploading(p + 1)
+    },[])
+
+    useEffect(()=>{
+        if(uploading > 1 && list.length !== numberOfRows){
+            
+            setLoading(true)
+            fetch(`/api/find/test?title=${title}&c=${uploading}`)
+            .then(async res =>{
+                let response = await res.json()
+                if(res.ok){
+                    if(response.numberOfRows !== 0 && response.numberOfRows > 5 &&  (response.rows.length % 5 === 0) && response.rows.length !== response.numberOfRows ){
+                        setList([...response.rows,{id:new Date().getTime(),title:"",url:""}])
+                    }
+                    else {
+                        setList([...response.rows])
+                    }
+                }
+                setLoading(false)
+            })
+    }
+    },[uploading,title,list.length,numberOfRows])
     return (
     <main>
         <Container style={{marginTop:"4px"}}>
@@ -30,7 +68,7 @@ const Find = () =>{
                         <Grid container justify="center">
                             <Grid item sm={5} >
                                 <TextField inputRef={ref} onChange={findTest} margin="dense" fullWidth label="Название теста" variant="outlined"  />
-                                <DataGrid loading={loading} pageSize={5} style={{height:"300px"}} columns={columns} rows={list}/>
+                                <DataGrid onPageChange={(p)=> uploadingHandler(p.page)} loading={loading} pageSize={5} style={{height:"300px"}} columns={columns} rows={list}/>
                             </Grid>
                         </Grid>
                     </Paper>
