@@ -46,7 +46,6 @@ router.get("/test/find/:url",async(req,res)=>{
 router.get("/find/test",async (req,res)=>{
   const title = req.query.title
   const c = Number(req.query.c) === 0 ? 1 : Number(req.query.c)
-  console.log(c)
   try{
     let count = await db.query("SELECT COUNT(id) FROM tests WHERE title ~* $1",[`(${title})`])
     let test = await db.query("SELECT url,title,id,link_access FROM tests WHERE title ~* $1 LIMIT $2",[`(${title})`, 5 * Number(c)])
