@@ -15,5 +15,4 @@ app.use(session({
 app.use("/api",authRoute)
 app.use("/api",testRoute)
 
-
 app.listen(4000)

@@ -3,10 +3,13 @@ const db = require("../db")
 const forEach = require("lodash.foreach")
 const getHash = require("../util/getHash")
 const authMiddleware = require("../middleware/auth")
+const {validate, ValidationError} = require('express-validation');
+const creationScheme = require("../schemes/create")
+const finishScheme = require("../schemes/finish")
 const router = Router()
 
 
-router.post("/test/create",authMiddleware,async(req,res)=>{
+router.post("/test/create",[authMiddleware,validate(creationScheme)],async(req,res)=>{
     const body = req.body
     try{
         let url = getHash(7) 
@@ -97,7 +100,7 @@ router.post("/test/delete",authMiddleware,async (req,res)=>{
   res.send(true)
 })
 
-router.post("/test/finish",async (req,res)=>{
+router.post("/test/finish",validate(finishScheme),async (req,res)=>{
   const body = req.body
   let count = 0
   let total = 0
@@ -120,6 +123,7 @@ router.post("/test/finish",async (req,res)=>{
   await db.query("INSERT INTO finish_test (name,testid,url,result,percentages,answers,finish_time) VALUES ($1,$2,$3,$4,$5,$6::jsonb[],$7)",
    [body.name,body.testId,url,`${count}/${total}`,percentages.toFixed(1),[...body.answers],
    `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`])
+
    res.send({url})
   }
   catch(e){
@@ -180,6 +184,21 @@ router.post("/test/result/delete",authMiddleware,async (req,res)=>{
     }
   }
   res.send(Math.random().toString())
+})
+
+
+router.use("/test/create",function(err, req, res, next){
+  if (err instanceof ValidationError) {
+    return res.status(err.statusCode).json({message:"Превышена длина названия теста или варианта"})
+  }
+  return res.status(500).json({message:"Произошла неизвестная ошибка"})
+})
+
+router.use("/test/finish",function(err, req, res, next){
+  if (err instanceof ValidationError) {
+    return res.status(err.statusCode).json({message:"Указанное имя превышает допустимую длину или с ответами что-то не так"})
+  }
+  return res.status(500).json({message:"Произошла неизвестная ошибка"})
 })
 
 module.exports = router

@@ -9,6 +9,9 @@ router.post("/registration",async(req,res)=>{
     if(!re.test(email)){
       return res.status(400).send({message:"Невалидный формат почты"})
     }
+    if(password.length > 15 || password.length < 5){
+      return res.status(400).send({message:"Длина пароля дложна быть от 5 до 15 символов"})
+    }
     const hash = bcrypt.hashSync(password,5)
     try{
         let user = await db.query("SELECT email FROM users WHERE email = $1",[email])
