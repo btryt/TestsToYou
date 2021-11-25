@@ -74,7 +74,7 @@ const Create = ({setActive}) => {
   },[continueTest])
 
   const addTitle = useCallback(() => {
-    if (ref.current.value.trim() && ref.current.value.trim().length <= 120 && ref.current.value.trim().length >= 5) {
+    if (ref.current.value.trim() && ref.current.value.trim().length <= 110 && ref.current.value.trim().length >= 5) {
       setTestTitle(ref.current.value.trim())
       setStep((prev) => prev + 1)
     }
@@ -83,7 +83,7 @@ const Create = ({setActive}) => {
   const changeTestTitle = debounce((e,id)=>{
       let array = [...tests]
       let testIndex = array.findIndex((test) => test.id === id)
-      if(e.target.value.trim().length >=210){
+      if(e.target.value.trim().length >=110){
         if(!characterLimitExceededTitle.some(ch=> ch.id === id)){
           setCharacterLimitExceededTitle(prev => [...prev,{id}])
         }
@@ -181,7 +181,7 @@ const Create = ({setActive}) => {
       let array = [...tests]
       let testIndex = array.findIndex((test) => test.id === id)
       let variantIndex = testVariants[testIndex].variants.findIndex( (variant) => variant.id === variantId)
-      if(e.target.value.trim().length >= 150){
+      if(e.target.value.trim().length >= 90){
         if(!characterLimitExceededVariant.some(ch=> ch.id === variantId)){
           setCharacterLimitExceededVariant(prev => [...prev,{id:variantId}])
         }
