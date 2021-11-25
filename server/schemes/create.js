@@ -2,19 +2,19 @@ const {Joi} = require('express-validation');
 
 const scheme = {
     body: Joi.object({
-        testTitle:Joi.string().min(5).max(110),
-        showCorrect: Joi.boolean(),
-        linkAccess: Joi.boolean(),
+        testTitle:Joi.string().min(5).max(110).required(),
+        showCorrect: Joi.boolean().required(),
+        linkAccess: Joi.boolean().required(),
         tests:Joi.array().items(Joi.object({
-            id:Joi.number(),
-            title:Joi.string().min(1).max(110),
-            multiple:Joi.boolean(),
+            id:Joi.number().required(),
+            title:Joi.string().min(1).max(110).required(),
+            multiple:Joi.boolean().required(),
             variants:Joi.array().items(Joi.object({
-                id:Joi.number(),
-                title:Joi.string().min(1).max(90),
-                correct:Joi.boolean()
-            }))
-        }))
+                id:Joi.number().required(),
+                title:Joi.string().min(1).max(90).required(),
+                correct:Joi.boolean().required()
+            })).min(1).max(4)
+        })).min(1).max(40)
     })
 }
 
