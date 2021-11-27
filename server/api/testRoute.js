@@ -85,16 +85,18 @@ router.post("/test/delete",authMiddleware,async (req,res)=>{
   for(let i =0; i < req.body.length;i++){
     try{
       await db.query("BEGIN")
-      let id = await db.query("SELECT testid FROM finish_test WHERE testid = $1",[req.body[i]])
+      let userID = req.session.userId
+      let id = await db.query("SELECT testid FROM finish_test WHERE testid = $1 AND EXISTS (SELECT id FROM tests WHERE userid = $2)",[req.body[i],userID])
+      
       if(id.rows.length){
         await db.query("DELETE FROM finish_test WHERE testid = $1",[id.rows[0].testid])
       }
-      await db.query("DELETE FROM tests WHERE id = $1",[req.body[i]])
+      await db.query("DELETE FROM tests WHERE id = $1 AND userid = $2",[req.body[i],userID])
       await db.query('COMMIT')
     }catch(e){
       console.log(e)
       await db.query('ROLLBACK')
-      return res.status(500).send("")
+      return res.status(500).send(false)
     }
   }
   res.send(true)

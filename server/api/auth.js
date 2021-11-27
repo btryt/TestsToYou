@@ -10,7 +10,7 @@ router.post("/registration",async(req,res)=>{
       return res.status(400).send({message:"Невалидный формат почты"})
     }
     if(password.length > 15 || password.length < 5){
-      return res.status(400).send({message:"Длина пароля дложна быть от 5 до 15 символов"})
+      return res.status(400).send({message:"Длина пароля должна быть от 5 до 15 символов"})
     }
     const hash = bcrypt.hashSync(password,5)
     try{
@@ -24,7 +24,7 @@ router.post("/registration",async(req,res)=>{
     }
     catch(e){
       console.log(e)
-      res.status(500).send({message:"Произошла ошибка при регистрции пользователя"})
+      res.status(500).send({message:"Произошла ошибка при регистрации пользователя"})
     }
 })
 
