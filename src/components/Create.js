@@ -256,11 +256,6 @@ const Create = ({setActive}) => {
   const expiredRecaptcha = useCallback(()=>{
     setValidRecaptcha(false)
   },[])
-  useEffect(()=>{
-    if(continueTest){
-      console.log(testData)
-    }
-  },[continueTest])
   return (
     <div>
       <Grid

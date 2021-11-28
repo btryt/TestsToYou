@@ -67,7 +67,7 @@ const Test = ({ match }) => {
       if(index !== -1){
         let variantIndex = array[index].variants.findIndex(el=>el.id === variantId)
         if(tests[testIndex].multiple){
-          console.log('varI',variantIndex)
+  
           if(variantIndex !== -1){
           if(array[index].variants.filter(el=>el.correct===true).length > 1 && array[index].variants[variantIndex].correct){
 
