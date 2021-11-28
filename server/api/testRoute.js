@@ -11,6 +11,25 @@ const router = Router()
 
 router.post("/test/create",[authMiddleware,validate(creationScheme)],async(req,res)=>{
     const body = req.body
+    const uniqueTestId = new Set()
+    const testsWithCorrectAnswer = new Set()
+    const uniqueVariantId = new Set()
+    const variantsIdArray = []
+    forEach(body.tests,(test)=>{
+      uniqueTestId.add(test.id)
+
+      forEach(test.variants,(variant)=>{
+        if(variant.correct){
+          testsWithCorrectAnswer.add(test.id)
+          variantsIdArray.push(variant.id)
+          uniqueVariantId.add(variant.id)
+        }
+      })
+    })
+    if(uniqueTestId.size !== body.tests.length || testsWithCorrectAnswer.size !== body.tests.length || variantsIdArray.length !== uniqueVariantId.size){
+      return res.status(400).send({message:"Произошла ошибка при создании теста или данные были модифицированы"})
+    }
+
     try{
         let url = getHash(7) 
         let id = req.session.userId
@@ -20,7 +39,7 @@ router.post("/test/create",[authMiddleware,validate(creationScheme)],async(req,r
     }
     catch(e){
       console.log(e)
-      res.status(500).send(false)
+      res.status(500).send({message:"Что-то пошло не так при создании теста"})
     }
 })
 
