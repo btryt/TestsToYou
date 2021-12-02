@@ -15,9 +15,20 @@ router.post("/test/create",[authMiddleware,validate(creationScheme)],async(req,r
     const testsWithCorrectAnswer = new Set()
     const uniqueVariantId = new Set()
     const variantsIdArray = []
+    let modifiedData = false
     forEach(body.tests,(test)=>{
       uniqueTestId.add(test.id)
 
+      if(!test.multiple){
+        if(test.variants.filter(f=> f.correct).length > 1){
+          modifiedData = true
+        }
+      }
+      if(test.multiple){
+        if(test.variants.filter(f=> f.correct).length < 2){
+          modifiedData = true
+        }
+      }
       forEach(test.variants,(variant)=>{
         if(variant.correct){
           testsWithCorrectAnswer.add(test.id)
@@ -26,7 +37,7 @@ router.post("/test/create",[authMiddleware,validate(creationScheme)],async(req,r
         }
       })
     })
-    if(uniqueTestId.size !== body.tests.length || testsWithCorrectAnswer.size !== body.tests.length || variantsIdArray.length !== uniqueVariantId.size){
+    if(uniqueTestId.size !== body.tests.length || testsWithCorrectAnswer.size !== body.tests.length || variantsIdArray.length !== uniqueVariantId.size || modifiedData){
       return res.status(400).send({message:"Произошла ошибка при создании теста или данные были модифицированы"})
     }
 
@@ -123,12 +134,47 @@ router.post("/test/delete",authMiddleware,async (req,res)=>{
 
 router.post("/test/finish",validate(finishScheme),async (req,res)=>{
   const body = req.body
+  const uniqueTestId = new Set()
+  const uniqueVariantId = new Set()
+  const testsWithMultipleAnswers = new Set()
+  const variantsIdArray = []
   let count = 0
   let total = 0
+  let idNotFound = false
+  let modifiedData = false
+  forEach(body.answers,(answer)=>{
+    uniqueTestId.add(answer.testId)
+
+    if(answer.variants.filter(f=> f.correct).length !== answer.variants.length){
+      modifiedData = true
+    }
+    if(answer.variants.filter(f=> f.correct).length > 1){
+      testsWithMultipleAnswers.add(answer.testId)
+    }
+    forEach(answer.variants,(variant)=>{
+      if(variant.correct){
+        uniqueVariantId.add(variant.id)
+        variantsIdArray.push(variant.id)
+      }
+    })
+  })
+  if(uniqueTestId.size !== body.answers.length || variantsIdArray.length !== uniqueVariantId.size || modifiedData){
+    return res.status(400).send({message:"Произошла ошибка при завершении теста или данные были модифицированы"})
+  }
+
   try{
     const test = await db.query("SELECT tests,show_correct_answer FROM tests WHERE id = $1",[body.testId])
     const url = getHash(7)
+    if(test.rows.length){
         forEach(test.rows[0].tests,(val)=>{
+          if(!uniqueTestId.has(val.id)){
+            idNotFound = true
+          }
+          if(!val.multiple){
+            if(testsWithMultipleAnswers.has(val.id)){
+               modifiedData = true
+            }
+          }
             forEach(val.variants,(vr)=>{
                 if(body.answers.some(b=> b.testId === val.id && b.variants.some(v=>v.id === vr.id) && vr.correct)){
                     count++ 
@@ -136,16 +182,25 @@ router.post("/test/finish",validate(finishScheme),async (req,res)=>{
                 if(vr.correct){
                   total++
                 }
+                if(uniqueVariantId.has(vr.id)){
+                  uniqueVariantId.delete(vr.id)
+                }
             })
         })
-        
-  const percentages = (count * 100) / total 
-  
-  await db.query("INSERT INTO finish_test (name,testid,url,result,percentages,answers,finish_time) VALUES ($1,$2,$3,$4,$5,$6::jsonb[],$7)",
-   [body.name,body.testId,url,`${count}/${total}`,percentages.toFixed(1),[...body.answers],
-   `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`])
+      if(idNotFound || uniqueVariantId.size !== 0 || modifiedData){
+        return res.status(400).send({message:"Произошла ошибка или вы пытаетесь модифицировать данные"})
+      }
+      const percentages = (count * 100) / total 
+      
+      await db.query("INSERT INTO finish_test (name,testid,url,result,percentages,answers,finish_time) VALUES ($1,$2,$3,$4,$5,$6::jsonb[],$7)",
+      [body.name,body.testId,url,`${count}/${total}`,percentages.toFixed(1),[...body.answers],
+      `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`])
 
-   res.send({url})
+      res.send({url})
+    }
+    else{
+      res.status(400).send({message:"Не удалось завершить тест"})
+    }
   }
   catch(e){
     console.log(e)
