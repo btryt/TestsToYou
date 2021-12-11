@@ -116,7 +116,7 @@ router.post("/test/delete",authMiddleware,async (req,res)=>{
     try{
       await db.query("BEGIN")
       let userID = req.session.userId
-      let id = await db.query("SELECT testid FROM finish_test WHERE testid = $1 AND EXISTS (SELECT id FROM tests WHERE userid = $2)",[req.body[i],userID])
+      let id = await db.query("SELECT testid FROM finish_test WHERE testid = $1 AND EXISTS (SELECT id FROM tests WHERE id = $1 AND userid = $2)",[req.body[i],userID])
       
       if(id.rows.length){
         await db.query("DELETE FROM finish_test WHERE testid = $1",[id.rows[0].testid])
