@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function EnhancedTable() {
+function TestList() {
   const classes = useStyles();
   const [open,setOpen] =useState(false)
   const [testId,setTestId] = useState(null)
@@ -75,4 +75,4 @@ const deleteTest = useCallback(() =>{
     </Paper>
   );
 }
-export default React.memo(EnhancedTable)
+export default React.memo(TestList)

@@ -16,6 +16,8 @@ import {
 } from "@material-ui/core"
 import Alert from "./Alert"
 import { useHistory } from "react-router-dom"
+import funcWrapper from "../func/funcWrapper";
+import isCorrect from "../func/isCorrect";
 const Test = ({ match }) => {
   const history = useHistory()
   const [step,setStep] = useState(0)
@@ -27,6 +29,7 @@ const Test = ({ match }) => {
   const [tests, setTests] = useState([])
   const [error,setError] = useState("")
   const ref = useRef()
+  
   useEffect(()=>{
       setLoaded(false)
       fetch(`/api/test/find/${match.params.url}`)
@@ -151,8 +154,8 @@ const Test = ({ match }) => {
                         <Toolbar variant="dense">
                           <FormControl>
                             {!test.multiple ?
-                            <Radio  color="secondary" onChange={()=>changeAnswer(test.id,variant.id)}  checked={correctAnswers.length ? correctAnswers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id === variant.id)):false} />
-                            :<Checkbox  onChange={()=>changeAnswer(test.id,variant.id)} checked={correctAnswers.length ?correctAnswers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id === variant.id)) :false} />
+                            <Radio  color="secondary" onChange={funcWrapper(changeAnswer,test.id,variant.id)}  checked={isCorrect(correctAnswers,test,variant)} />
+                            :<Checkbox  onChange={funcWrapper(changeAnswer,test.id,variant.id)} checked={isCorrect(correctAnswers,test,variant)} />
                             }
                           </FormControl>
                           <span style={{wordBreak:"break-word"}}>{variant.title}</span>

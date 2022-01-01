@@ -1,4 +1,4 @@
-import React,{useCallback, useEffect, useRef, useState} from 'react'
+import React,{useCallback, useRef, useState} from 'react'
 import {Link} from 'react-router-dom'
 import debounce from 'lodash.debounce'
 import {Container,Grid,Paper,TextField,Typography} from '@material-ui/core'
@@ -8,7 +8,7 @@ const Find = () =>{
     const [list,setList] = useState([])
     const [title,setTitle] = useState('')
     const [numberOfRows,setNumberOfRows] = useState(0)
-    const [a,setA] = useState(new Set())
+    const [pagesList,setPagesList] = useState(new Set())
     const [hasNextPage,setHasNextPage] = useState(false)
     const [loading,setLoading] = useState(false)
     const [columns,setColumns] = useState([{field:"title",headerName:"Название",width:230,editable: false},
@@ -17,7 +17,7 @@ const Find = () =>{
     const findTest = debounce((e)=>{
         if(e.target.value.trim() && e.target.value.trim().length <=120){
             setLoading(true)
-            setA(new Set())
+            setPagesList(new Set())
             setList([])
             fetch(`/api/find/test?title=${e.target.value.trim()}&c=${0}`)
             .then(async res =>{
@@ -40,8 +40,8 @@ const Find = () =>{
 
     const uploadingHandler = useCallback((p)=>{
         let up = p === 0 ? 1: p + 1
-        if(up > 1 && hasNextPage && !a.has(p)){
-            a.add(p)
+        if(up > 1 && hasNextPage && !pagesList.has(p)){
+            pagesList.add(p)
             setLoading(true)
             fetch(`/api/find/test?title=${title}&c=${up}`)
             .then(async res =>{
@@ -60,7 +60,7 @@ const Find = () =>{
             })
     }
     
-    },[title,hasNextPage])
+    },[title,hasNextPage,pagesList])
 
     return (
     <main>

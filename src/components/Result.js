@@ -12,6 +12,7 @@ import {
 } from "@material-ui/core"
 import React, { useEffect, useState } from "react"
 import { useHistory } from "react-router-dom"
+import colorCheck from "../func/colorCheck"
 
 const Result = ({match}) => {
   const history = useHistory()
@@ -22,7 +23,6 @@ const Result = ({match}) => {
   const [result,setResult] = useState("")
   const [percent,setPercent] = useState(0)
   const [showCorrectAnswer,setShowCorrectAnswer] = useState(false)
-
   useEffect(()=>{
     let isMounted = true
     setLoaded(false)
@@ -98,17 +98,7 @@ const Result = ({match}) => {
                                 <Radio disabled checked={answers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id === variant.id))} />
                                 }
                             </FormControl>
-                            {showCorrectAnswer ? <p style={{ wordBreak: "break-all",color:`${test.multiple ? 
-                            (answers.some(answer => answer.testId === test.id && test.variants.some(tv=> tv.id === variant.id && tv.correct))  
-                            ? "lime" : 
-                            answers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id !== variant.id && variant.correct))  
-                            ? "red"   : 
-                            answers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id === variant.id && !variant.correct)) ? "red" :""   )
-
-                            :answers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id === variant.id && variant.correct))
-                            ?"lime":answers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id === variant.id && !variant.correct))
-                            ?"red":answers.some(answer => answer.testId === test.id && test.variants.some(tv=> tv.id === variant.id && tv.correct) )
-                            ?"lime":""}`}}>{variant.title}
+                            {showCorrectAnswer ? <p style={{ wordBreak: "break-all",color: colorCheck(answers,test,variant)}}>{variant.title}
                             </p> :<p>{variant.title}</p>}
                           </Toolbar>
                         </Box>

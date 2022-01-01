@@ -16,7 +16,8 @@ import {
 import {  makeStyles} from '@material-ui/core/styles';
 import Alert from './Alert'
 import ReCAPTCHA from "react-google-recaptcha"
-
+import funcWrapper from "../func/funcWrapper";
+import funcOnChangeWrapper from '../func/funcOnChangeWrapper'
 const useStyle = makeStyles((theme)=>({
   paper:{
     padding: theme.spacing(1),
@@ -283,7 +284,7 @@ const Create = ({setActive}) => {
               >
                 Продолжить
               </Button>
-              <small>Названиет теста от 5 до 120 символов</small>
+              <small>Названиет теста от 5 до 110 символов</small>
             </FormControl> :
             <div  className={`change_theme ${style.block}`} >
               <span>У вас есть сохраненный тест <b>{JSON.parse(localStorage.getItem('saved_test')).testTitle}</b>, хотите продолжить его?</span>
@@ -303,7 +304,7 @@ const Create = ({setActive}) => {
                           №{i + 1}
                         </Typography>
                         <Button
-                          onClick={() => deleteQuestion(test.id)}
+                          onClick={funcWrapper(deleteQuestion,test.id)}
                           variant="contained"
                           color="secondary"
                           style={{ marginRight: "4px" }}
@@ -311,29 +312,29 @@ const Create = ({setActive}) => {
                           X
                         </Button>
                       </Toolbar>
-                      <TextField defaultValue={continueTest ? testData.find(t=>t.id === test.id).title : ""} onChange={(e)=>changeTestTitle(e,test.id)} margin="dense" fullWidth label="Вопрос" variant="outlined" />
-                      {characterLimitExceededTitle.some(cr=>cr.id === test.id) && <small style={{color:"red"}}>Уменьньшите длину вопроса до 210 символов</small>}
+                      <TextField defaultValue={continueTest ? testData.find(t=>t.id === test.id).title : ""} onChange={funcOnChangeWrapper(changeTestTitle,test.id)} margin="dense" fullWidth label="Вопрос" variant="outlined" />
+                      {characterLimitExceededTitle.some(cr=>cr.id === test.id) && <small style={{color:"red"}}>Уменьньшите длину вопроса до 110 символов</small>}
                       <p style={{ margin: "4px" }}>Варианты ответа</p>
                       {testVariants.find(el=>el.testId === test.id).variants.map((variant, i) => (
                         <Box key={variant.id}>
                           <Toolbar style={{ padding: "0", margin: "0" }}>
                             <Tooltip title="Правильный ответ">
                              <FormControl>
-                                 <FormControlLabel labelPlacement="bottom" label="Правильный" control={<Checkbox onChange={()=>setCorrectVariant(test.id,variant.id)} checked={testData.length && testData.find(el=> el.id === test.id).variants.find(vl=>vl.id === variant.id).correct} />}/>
+                                 <FormControlLabel labelPlacement="bottom" label="Правильный" control={<Checkbox onChange={funcWrapper(setCorrectVariant,test.id,variant.id)} checked={testData.length && testData.find(el=> el.id === test.id).variants.find(vl=>vl.id === variant.id).correct} />}/>
                             </FormControl>
                             </Tooltip>
                             <div style={{display:"flex",flexDirection:"column"}}>
                             <TextField
-                              onChange={(e)=>changeTestVariantTitle(e,test.id,variant.id)}
+                              onChange={funcOnChangeWrapper(changeTestVariantTitle,test.id,variant.id)}
                               margin="dense"
                               label="Вариант ответа"
                               variant="outlined"
                               defaultValue={continueTest ? testData.find(t=>t.id === test.id).variants.find(v=>v.id === variant.id).title:""}
                             />
-                            {characterLimitExceededVariant.some(cr=>cr.id === variant.id) && <small style={{color:"red"}}>Уменьшите длину варианта ответа до 150 символов</small>}
+                            {characterLimitExceededVariant.some(cr=>cr.id === variant.id) && <small style={{color:"red"}}>Уменьшите длину варианта ответа до 90 символов</small>}
                             </div>
                             <div
-                              onClick={() => deleteVariant(test.id, variant.id)}
+                              onClick={funcWrapper(deleteVariant,test.id, variant.id)}
                               style={{ cursor: "pointer", marginLeft: "4px",color:"red" }}
                             >
                               &#10296;
@@ -342,7 +343,7 @@ const Create = ({setActive}) => {
                         </Box>
                       ))}
                       <Button
-                        onClick={() => addVariant(test.id)}
+                        onClick={funcWrapper(addVariant,test.id)}
                         style={{
                           width: "10%",
                           padding: "5px",
