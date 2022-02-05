@@ -15,11 +15,12 @@ import {
   Checkbox
 } from "@material-ui/core"
 import Alert from "./Alert"
-import { useHistory } from "react-router-dom"
+import { useNavigate,useParams } from "react-router-dom"
 import funcWrapper from "../func/funcWrapper";
 import isCorrect from "../func/isCorrect";
-const Test = ({ match }) => {
-  const history = useHistory()
+const Test = () => {
+  const location = useNavigate()
+  const params = useParams()
   const [step,setStep] = useState(0)
   const [loaded,setLoaded] = useState(false)
   const [testId,setTestId] = useState(0)
@@ -31,9 +32,11 @@ const Test = ({ match }) => {
   const ref = useRef()
   
   useEffect(()=>{
+      let mounted = true
       setLoaded(false)
-      fetch(`/api/test/find/${match.params.url}`)
+      fetch(`/api/test/find/${params.url}`)
       .then(async res=>{
+        if(mounted){
           if(res.ok){
               let response = await res.json()
               setTests([...response.rows.tests])
@@ -41,11 +44,14 @@ const Test = ({ match }) => {
               setTestId(response.testId)
           }
           else{
-            history.replace("/")
+            location("../find",{replace:true})
           }
           setLoaded(true)
-      })
-  },[match.params.url,history])
+        }
+        })
+        return ()=> mounted = false
+  },[params.url,location])
+  
   useEffect(()=>{
     if(localStorage.getItem("answer")){
       let answers = JSON.parse(localStorage.getItem("answer"))
@@ -115,15 +121,14 @@ const Test = ({ match }) => {
       .then(async res=>{
         let response = await res.json()
         if(res.ok){
-          
-          history.replace(`/result/${response.url}`)
+          location(`/result/${response.url}`,{replace:true})
         }
         else{
           setError(response.message)
         }
       })
     }
-  },[testId,correctAnswers,history])
+  },[testId,correctAnswers,location])
 
 
   return (

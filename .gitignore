@@ -8,6 +8,7 @@
 /server/api.rest
 # testing
 /coverage
+/src/tests
 
 # production
 /build

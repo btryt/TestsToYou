@@ -12,7 +12,7 @@ import {
   } from "@material-ui/core"
   import { makeStyles } from "@material-ui/core/styles"
 import Alert from './Alert'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
   
   const useStyles = makeStyles((theme) => ({
     input:{
@@ -36,7 +36,7 @@ import { useHistory } from 'react-router-dom'
     }
   }))
 const Login = ({setLogin}) =>{
-    const history = useHistory()
+    const location = useNavigate()
     const [validRecaptcha,setValidRecaptcha] = useState(false)
     const [error,setError] = useState('')
     const [message,setMessage] = useState('')
@@ -83,12 +83,12 @@ const Login = ({setLogin}) =>{
           let response = await res.json()
           if(res.ok){
             setLogin(response)
-            history.replace("/profile")
+            location("/profile",{replace:true})
           }
           else setErrorMessage(response.message)
         })
       } 
-    },[setLogin,history])
+    },[setLogin,location])
 
     const recaptcha = useCallback(() =>{
       setValidRecaptcha(true)

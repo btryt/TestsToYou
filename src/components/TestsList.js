@@ -29,7 +29,7 @@ function TestList() {
   const [selected, setSelected] = React.useState([]);
   const [deleted,setDeleted] = useState(0)
   const [columns,setColumns] = useState([{field:"title",headerName:"Название",width:150,editable: false},
-    {field:"url",headerName:"Ссылка на тест",editable:false,width:260,renderCell:(params)=><Link style={{color:"white"}} to={`test/${params.value}`}>http://localhost/test/result/{params.value}</Link>},
+    {field:"url",headerName:"Ссылка на тест",editable:false,width:260,renderCell:(params)=><Link style={{color:"white"}}  to={`../test/${params.value}`}>http://localhost/test/result/{params.value}</Link>},
     {field:"Реузультат",headerName:"",width:180,editable: false, renderCell: (params)=> <Button style={{color:"white"}} onClick={()=>getResults(params.id)} variant="outlined" color="primary">Информация</Button>}])
 
 

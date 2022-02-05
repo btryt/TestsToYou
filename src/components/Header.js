@@ -1,5 +1,5 @@
 import React, { useContext,useCallback} from 'react'
-import {Link, useHistory} from 'react-router-dom'
+import {Link, useNavigate} from 'react-router-dom'
 import Context from './context/context'
 import {
 AppBar,
@@ -29,7 +29,7 @@ const useStyles = makeStyles((t) => ({
 
 const Header = () =>{
     const styles= useStyles()
-    const history = useHistory()
+    const location = useNavigate()
     const [anchorEl, setAnchorEl] = React.useState(null);
     
     const context = useContext(Context)
@@ -45,9 +45,10 @@ const Header = () =>{
 
     const logOut = useCallback((e) =>{
       e.preventDefault()
-      if(context.auth) fetch("/api/logout",{method:"POST"}).then(()=>{history.replace('/login');context.setAuth(false)})
-    },[context,history])
+      if(context.auth) fetch("/api/logout",{method:"POST"}).then(()=>{location('/login',{replace:true});context.setAuth(false)})
+    },[context,location])
     return (
+      <>
         <AppBar title="TestToYou" position="static" style={{background:"#353535"}}>
         <Container >
           <Toolbar>
@@ -69,6 +70,8 @@ const Header = () =>{
           </Toolbar>
         </Container>
       </AppBar>
+      
+      </>
     )
 }
 

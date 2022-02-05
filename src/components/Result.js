@@ -11,11 +11,12 @@ import {
   Checkbox
 } from "@material-ui/core"
 import React, { useEffect, useState } from "react"
-import { useHistory } from "react-router-dom"
+import { useNavigate,useParams } from "react-router-dom"
 import colorCheck from "../func/colorCheck"
 
-const Result = ({match}) => {
-  const history = useHistory()
+const Result = () => {
+  const location = useNavigate()
+  const params = useParams()
   const [tests, setTests] = useState([])
   const [testTitle,setTestTitle] = useState("")
   const [loaded,setLoaded] = useState(false)
@@ -26,7 +27,7 @@ const Result = ({match}) => {
   useEffect(()=>{
     let isMounted = true
     setLoaded(false)
-    fetch(`/api/test/result/${match.params.url}`)
+    fetch(`/api/test/result/${params.url}`)
     .then(async res=>{
       if(res.ok){
         let response = await res.json()
@@ -38,12 +39,12 @@ const Result = ({match}) => {
         setShowCorrectAnswer(response.showCorrectAnswer)
       }
       else{
-        history.replace("/")
+        location("../find",{replace:true})
       }
       if(isMounted) setLoaded(true)
     })
     return () => isMounted = false
-  },[match.params.url,history])
+  },[params.url,location])
   useEffect(()=>{
     if(loaded){
     let ctx = document.getElementById('circle').getContext('2d');

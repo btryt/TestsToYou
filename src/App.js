@@ -1,6 +1,6 @@
 import "./App.css"
 import React from 'react'
-import { Switch, Route } from "react-router-dom"
+import { Routes, Route } from "react-router-dom"
 import Header from "./components/Header"
 import Login from './components/Login'
 import Profile from "./components/Profile"
@@ -10,6 +10,7 @@ import Context from './components/context/context'
 import { useEffect, useState } from "react"
 import Home from "./components/Home"
 import Find from "./components/Find"
+import {PrivateRoute} from "./HOC/PrivateRoute"
 import {createMuiTheme,MuiThemeProvider} from '@material-ui/core/styles'
 
 let darkTheme = createMuiTheme({
@@ -26,7 +27,6 @@ function App() {
   const [loaded,setLoaded] = useState(false)
   const [login,setLogin] = useState(0)
   const [auth,setAuth] = useState(false)
-  // const changeTheme = React.memo(()=>createMuiTheme(getTheme(theme)),[theme])
 
   useEffect(()=>{
     setLoaded(false)
@@ -42,14 +42,14 @@ function App() {
       <MuiThemeProvider theme={darkTheme} >
       <Header />
       
-      <Switch>
-        <Route path="/" exact component={Home}/>
-        {(loaded && !auth) && <Route path="/login" render={()=><Login setLogin={setLogin} />} />}
-        {(loaded && auth) && <Route path="/profile" component={Profile} />}
-        <Route path="/test/:url" component={Test} />
-        <Route path="/find" component={Find}/>
-        <Route path="/result/:url" component={Result} />
-      </Switch>
+      <Routes>
+        <Route path="/" element={<Home/>}/>
+        {(loaded && !auth) && <Route path="/login" element={<Login setLogin={setLogin}/>}/>}
+        {loaded && <Route path="/profile" element={<PrivateRoute><Profile/></PrivateRoute>} />}
+        <Route path="/test/:url" element={<Test/>} />
+        <Route path="/find" element={<Find/>}/>
+        <Route path="/result/:url" element={<Result/>} />
+      </Routes>
       
     </MuiThemeProvider>
     </Context.Provider>
