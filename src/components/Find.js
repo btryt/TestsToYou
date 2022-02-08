@@ -7,7 +7,6 @@ const Find = () =>{
     const ref = useRef()
     const [list,setList] = useState([])
     const [title,setTitle] = useState('')
-    const [numberOfRows,setNumberOfRows] = useState(0)
     const [pagesList,setPagesList] = useState(new Set())
     const [hasNextPage,setHasNextPage] = useState(false)
     const [loading,setLoading] = useState(false)
@@ -23,7 +22,6 @@ const Find = () =>{
             .then(async res =>{
                 let response = await res.json()
                 if(res.ok) {
-                    setNumberOfRows(response.numberOfRows)
                     if(response.numberOfRows !== 0 && response.numberOfRows > 5 && (response.rows.length % 5 === 0) ){
                         setList([...response.rows,{id:new Date().getTime(),title:"",url:""}])
                         setHasNextPage(true)

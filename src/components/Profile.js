@@ -1,7 +1,7 @@
 import React, { useState,useCallback } from "react"
 import { Container, Paper, Grid, Tabs,Tab } from "@material-ui/core"
 import { makeStyles } from "@material-ui/core/styles"
-import EnhancedTable from "./TestsList"
+import TestsList from "./TestsList"
 import Create from "./Create"
 const useStyles = makeStyles(theme =>({
     tabs:{
@@ -34,7 +34,7 @@ const changeHandler = useCallback((e,newValue) =>{
             </Tabs>
             </Paper>
             
-              {active === 0 ? <EnhancedTable  /> : <Create setActive={setActive}/>}
+            {active === 0 ? <TestsList  /> : <Create setActive={setActive}/>}
             
           </Grid>
         </Grid>

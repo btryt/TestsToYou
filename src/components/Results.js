@@ -20,6 +20,7 @@ const useStyles = makeStyles((theme)=>({
 const Results = ({id,open,setOpen}) =>{
     const classes = useStyles()
     const [loading,setLoading] =useState(false)
+    const [information, setInformation] = useState([])
     const [deleted,setDeleted] = useState(0)
     const [selected,setSelected] = useState([])
     const [results,setResults] = useState([])
@@ -34,7 +35,9 @@ const Results = ({id,open,setOpen}) =>{
             setLoading(true)
             fetch(`/api/test/results?id=${id}`)
             .then(async res=>{
-                setResults(await res.json())
+                const data = await res.json()
+                setResults(data.rows)
+                setInformation([{averagePercentage:data.averagePercentage,numOfCompletedTest:data.numOfCompletedTest}])
                 setLoading(false)
             })
         }
@@ -72,6 +75,12 @@ const Results = ({id,open,setOpen}) =>{
         <Paper className={classes.root}  >
          {selected.length ? <Button onClick={deleteResult} style={{position:"absolute",right:'3px',top:'3px'}} variant="contained" color="secondary">Удалить результат</Button>:""}
             <DataGrid components={{NoRowsOverlay:NoRowsOverlay}} style={{height:"420px",marginTop:"40px"}} loading={loading} hideFooterSelectedRowCount onSelectionModelChange={onSelected} rows={results} columns={columns} pageSize={5} checkboxSelection disableSelectionOnClick/>
+            {information.map((info,i)=>(
+                <div key={i} style={{display:'flex',flexDirection:'column',margin:"4px"}}>
+                    <span>Средний процент: {info.averagePercentage}</span>
+                    <span>Колличество пройденных: {info.numOfCompletedTest}</span>
+                </div>
+            ))}
         </Paper> 
     </Modal>
     )
