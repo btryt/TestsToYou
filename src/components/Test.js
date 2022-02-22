@@ -12,8 +12,9 @@ import {
   Modal,
   TextField,
   CircularProgress,
-  Checkbox
+  Checkbox,
 } from "@material-ui/core"
+import Rating from './Rating'
 import Alert from "./Alert"
 import { useNavigate,useParams } from "react-router-dom"
 import funcWrapper from "../func/funcWrapper";
@@ -28,7 +29,7 @@ const Test = () => {
   const [title,setTitle] = useState("")
   const [correctAnswers,setCorrectAnswers] = useState([])
   const [tests, setTests] = useState([])
-  const [error,setError] = useState("")
+  const [errorMessage,setErrorMessage] = useState("")
   const ref = useRef()
   
   useEffect(()=>{
@@ -113,7 +114,7 @@ const Test = () => {
   },[tests.length,correctAnswers.length])
 
   const finishTest = useCallback(()=>{
-    setError("")
+    setErrorMessage("")
     if(ref.current.value.trim() && ref.current.value.trim().length <= 15 && correctAnswers.length){ 
       let name = ref.current.value.trim()
       localStorage.removeItem("answer")
@@ -124,7 +125,7 @@ const Test = () => {
           location(`/result/${response.url}`,{replace:true})
         }
         else{
-          setError(response.message)
+          setErrorMessage(response.message)
         }
       })
     }
@@ -171,8 +172,14 @@ const Test = () => {
                   </Paper>
                 ))}
                 {step === 0 &&<Button onClick={nextStep} fullWidth style={{justifyContent:"center"}} variant="contained" color="primary">Завершить тест</Button>}
+                <Paper style={{marginTop:"8px",display:"flex",justifyContent:"center"}}>
+                  <div style={{display:"flex",flexDirection:"column"}}>
+                    <Typography variant="h6">Рейтинг теста</Typography>
+                    <Rating testId={testId} setErrorMessage={setErrorMessage} />
+                  </div>
+                </Paper>
                 {emptyAnswer && <Alert variant="error">Вы ответили не на все вопросы</Alert>}
-                {error && <Alert variant="error">{error}</Alert>}
+                {errorMessage && <Alert variant="error">{errorMessage}</Alert>}
             </>
         </Grid>:<Grid xs={12} item style={{textAlign:"center"}}><Paper elevation={7} style={{minHeight:"50vh"}}><CircularProgress style={{marginTop:"25vh"}}/></Paper></Grid>}
       </Grid>

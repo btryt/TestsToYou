@@ -37,7 +37,7 @@ const Results = ({id,open,setOpen}) =>{
             .then(async res=>{
                 const data = await res.json()
                 setResults(data.rows)
-                setInformation([{averagePercentage:data.averagePercentage,numOfCompletedTest:data.numOfCompletedTest}])
+                setInformation([{averagePercentage:data.averagePercentage,numOfCompletedTest:data.numOfCompletedTest,averageRating:data.averageRating}])
                 setLoading(false)
             })
         }
@@ -79,6 +79,7 @@ const Results = ({id,open,setOpen}) =>{
                 <div key={i} style={{display:'flex',flexDirection:'column',margin:"4px"}}>
                     <span>Средний процент: {info.averagePercentage}</span>
                     <span>Колличество пройденных: {info.numOfCompletedTest}</span>
+                    <span>Рейтинг теста: {info.averageRating}</span>
                 </div>
             ))}
         </Paper> 

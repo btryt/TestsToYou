@@ -4,12 +4,13 @@ const forEach = require("lodash.foreach")
 const getHash = require("../util/getHash")
 const authMiddleware = require("../middleware/auth")
 const {validate, ValidationError} = require('express-validation');
-const creationScheme = require("../schemes/create")
-const finishScheme = require("../schemes/finish")
+const creationSchema = require("../schemes/create")
+const finishSchema = require("../schemes/finish")
+const ratingSchema = require("../schemes/rating")
 const router = Router()
 
 
-router.post("/test/create",[authMiddleware,validate(creationScheme)],async(req,res)=>{
+router.post("/test/create",[authMiddleware,validate(creationSchema)],async(req,res)=>{
     const body = req.body
     const uniqueTestId = new Set()
     const testsWithCorrectAnswer = new Set()
@@ -132,7 +133,7 @@ router.post("/test/delete",authMiddleware,async (req,res)=>{
   res.send(true)
 })
 
-router.post("/test/finish",validate(finishScheme),async (req,res)=>{
+router.post("/test/finish",validate(finishSchema),async (req,res)=>{
   const body = req.body
   const uniqueTestId = new Set()
   const uniqueVariantId = new Set()
@@ -238,13 +239,14 @@ router.get("/test/results",authMiddleware,async(req,res)=>{
   const id = req.query.id
   try{
     const finishedTests = await db.query("SELECT name,percentages,result,url,id,testid,to_char(finish_time,'YYYY-MM-DD HH24:MI:SS') AS finish_time FROM finish_test WHERE testid = (SELECT id FROM tests WHERE userid = $1 AND id = $2)",[req.session.userId,id])
+    const averageRating = await db.query("SELECT rating FROM tests WHERE id = $1",[id])
     let averagePercentage = 0
     const numOfCompletedTest = finishedTests.rows.length
     forEach(finishedTests.rows,el=>{
       averagePercentage += parseInt(el.percentages)
     })
-    
-    res.send({rows:finishedTests.rows,averagePercentage:averagePercentage !== 0 ? (averagePercentage / numOfCompletedTest).toFixed(1) : 0  ,numOfCompletedTest})
+    let percent = averagePercentage !== 0 ? (averagePercentage / numOfCompletedTest).toFixed(1) : 0
+    res.send({rows:finishedTests.rows,averagePercentage: percent,averageRating:averageRating.rows[0].rating,numOfCompletedTest})
   }
   catch(e){
     console.log(e)
@@ -266,6 +268,53 @@ router.post("/test/result/delete",authMiddleware,async (req,res)=>{
   res.send(Math.random().toString())
 })
 
+router.post("/test/add/rating",[authMiddleware,validate(ratingSchema)],async (req,res)=>{
+  const {rating,testId} = req.body
+  
+  let count = {}
+  try{
+    const userRating = await db.query("SELECT id FROM rating WHERE userid =$1 AND testid =$2",[req.session.userId,testId])
+   
+    if(userRating.rows.length){
+      await db.query("UPDATE rating SET rating = $1 WHERE userid = $2 AND testid = $3",[rating,req.session.userId,testId]) 
+    }else{
+      await db.query("INSERT INTO rating (rating,userid,testid) VALUES ($1,$2,$3)",[rating,req.session.userId,testId])
+    }
+    const allRating =  await db.query("SELECT id,rating FROM rating WHERE testid =$1",[testId])
+    forEach(allRating.rows,(row)=>{
+      
+      if(!count[row.rating]){
+        count[row.rating] = 1
+      } 
+      else count[row.rating] += 1
+    })
+    let averageRating = ((5*count[5] || 0) + (4*count[4] || 0) + (3*count[3] || 0) + (2 * count[2] || 0) + (1* count[1] || 0)) / 
+    ((count[5] || 0) + (count[4] || 0) + (count[3] || 0) + (count[2] || 0) + (count[1] || 0))
+    await db.query("UPDATE tests SET rating = $1 WHERE id = $2", [averageRating,testId])
+    return res.send({message:"Оценка тесту успешно добавлена"})
+  }
+  catch(e){
+    return res.status(500).send({message:"Что-то пошло не так при добавления оценки теста"})
+  }
+})
+
+router.get("/test/rating",async (req,res)=>{
+  const id = req.query.id
+  try{
+
+    const test = await db.query("SELECT rating FROM tests WHERE id = $1",[id])
+    const numberOfUsers = await db.query("SELECT COUNT(id) FROM rating WHERE testid = $1",[id])
+    
+    if(test.rows.length){
+     return  res.send({rating:test.rows[0].rating,numberOfUsers:numberOfUsers.rows[0].count})
+    }
+    res.status(404).send({message:"Тест не найден"})
+  }
+  catch(e){
+    res.status(500).send({message:"Произошла ошибка"})
+  }
+
+})
 
 router.use("/test/create",function(err, req, res, next){
   if (err instanceof ValidationError) {
@@ -281,4 +330,10 @@ router.use("/test/finish",function(err, req, res, next){
   return res.status(500).json({message:"Произошла неизвестная ошибка"})
 })
 
+router.use("/test/add/rating",(err,req,res,next)=>{
+  if (err instanceof ValidationError) {
+    return res.status(err.statusCode).json({message:"Оценка теста должна быть от 1 до 5"})
+  }
+  return res.status(500).json({message:"Произошла неизвестная ошибка"})
+})
 module.exports = router

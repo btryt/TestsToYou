@@ -1,6 +1,6 @@
 const {Joi} = require('express-validation');
 
-const scheme = {
+const schema = {
     body: Joi.object({
         testTitle:Joi.string().min(5).max(110).trim().required(),
         showCorrect: Joi.boolean().required(),
@@ -18,4 +18,4 @@ const scheme = {
     })
 }
 
-module.exports = scheme
+module.exports = schema
