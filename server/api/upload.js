@@ -28,12 +28,6 @@ const storage = multer.diskStorage({
               return cb(null,true)
           }
           else {
-            fs.rmdir(path.join(__dirname,`../uploads/${req.session.lastTestId}`),(err)=>{
-              if(err) console.log(err)
-            })
-            db.query("DELETE FROM tests WHERE id = $1",[req.session.lastTestId],(err)=>{
-              if(err) console.log(err)
-            })
             return cb({code:"WRONG_TYPE_FILE",message:"Формат картинки должен быть jpeg, jpg, png"},false)
           }
       },
