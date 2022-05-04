@@ -50,7 +50,6 @@ function App() {
         <Route path="/find" element={<Find/>}/>
         <Route path="/result/:url" element={<Result/>} />
       </Routes>
-      
     </MuiThemeProvider>
     </Context.Provider>
   )

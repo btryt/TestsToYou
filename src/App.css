@@ -22,3 +22,41 @@
   color: black;
 }
 
+#upload{
+  display:none;
+}
+/* #upload_variant{
+  display: none;
+} */
+
+.upload__modal::-webkit-scrollbar {
+  width: 8px;               
+}
+.upload__modal::-webkit-scrollbar-track {
+  background: #2C2929;        
+}
+.upload__modal::-webkit-scrollbar-thumb {
+  background-color: #242121;    
+  border-radius: 5px;       
+  border: 1px solid #252323;  
+}
+
+.test_image{
+max-width: 200px;
+height: auto;
+}
+.variant_image{
+max-width: 160px;
+height: auto;
+margin-bottom: 8px;
+}
+@media screen and (max-width:500px){
+  .test_image{
+    max-width: 140px;
+
+  }
+  .variant_image{
+    max-width: 130px;
+
+  }
+}

@@ -1,5 +1,7 @@
 const {Router} = require("express")
 const db = require("../db")
+const fs = require("fs")
+const path = require("path")
 const forEach = require("lodash.foreach")
 const getHash = require("../util/getHash")
 const authMiddleware = require("../middleware/auth")
@@ -8,8 +10,6 @@ const creationSchema = require("../schemes/create")
 const finishSchema = require("../schemes/finish")
 const ratingSchema = require("../schemes/rating")
 const router = Router()
-
-
 router.post("/test/create",[authMiddleware,validate(creationSchema)],async(req,res)=>{
     const body = req.body
     const uniqueTestId = new Set()
@@ -45,11 +45,24 @@ router.post("/test/create",[authMiddleware,validate(creationSchema)],async(req,r
     try{
         let url = getHash(7) 
         let id = req.session.userId
-        await db.query("INSERT INTO tests (title,userid,url,show_correct_answer,tests,link_access) VALUES ($1,$2,$3,$4::boolean,$5::jsonb[],$6::boolean)",
+        let testId = await db.query("INSERT INTO tests (title,userid,url,show_correct_answer,tests,link_access) VALUES ($1,$2,$3,$4::boolean,$5::jsonb[],$6::boolean) RETURNING id",
         [body.testTitle,id,url,body.showCorrect,[...body.tests],body.linkAccess])
+        if(testId.rows.length){
+          await fs.promises.mkdir(path.join(__dirname,`../uploads/${testId.rows[0].id}`))
+
+          req.session.lastTestId = testId.rows[0].id
+        }
         res.send(true)
     }
     catch(e){
+      if(req.session.lastTestId){
+        db.query("DELETE FROM tests WHERE id = $1",[req.session.lastTestId],(err)=>{
+          if(err) console.log(err)
+        })
+        fs.rmdir(path.join(__dirname,`../uploads/${req.session.lastTestId}`),(err)=>{
+          if(err) console.log(err)
+        })
+      }
       console.log(e)
       res.status(500).send({message:"Что-то пошло не так при создании теста"})
     }
@@ -118,7 +131,9 @@ router.post("/test/delete",authMiddleware,async (req,res)=>{
       await db.query("BEGIN")
       let userID = req.session.userId
       let id = await db.query("SELECT testid FROM finish_test WHERE testid = $1 AND EXISTS (SELECT id FROM tests WHERE id = $1 AND userid = $2)",[req.body[i],userID])
-      
+      fs.rm(path.join(__dirname,`../uploads/${req.body[i]}`),{recursive:true},(err)=>{
+        if(err) console.log(err)
+      })
       if(id.rows.length){
         await db.query("DELETE FROM finish_test WHERE testid = $1",[id.rows[0].testid])
       }
@@ -214,18 +229,18 @@ router.get("/test/result/:url",async (req,res)=>{
   try{
     let result = await db.query("SELECT testid,result,percentages,answers FROM finish_test WHERE url = $1",[url])
     if(result.rows.length){
-      let tests = await db.query("SELECT tests,show_correct_answer,title FROM tests WHERE id = $1",[result.rows[0].testid])
+      let tests = await db.query("SELECT tests,show_correct_answer,title,id FROM tests WHERE id = $1",[result.rows[0].testid])
       let showCorrectAnswer = tests.rows[0].show_correct_answer
       
-      let testsWithoutAnswer = [...tests.rows[0].tests]
+      let testsWithoutAnswers = [...tests.rows[0].tests]
       if(!showCorrectAnswer){
-        forEach(testsWithoutAnswer,(val)=>{
+        forEach(testsWithoutAnswers,(val)=>{
           forEach(val.variants,(vr)=>{
             delete vr.correct
           })
         })
     }
-     return res.send({title:tests.rows[0].title,tests:showCorrectAnswer ? tests.rows[0].tests : testsWithoutAnswer,answers:result.rows[0].answers,result:result.rows[0].result,percent:result.rows[0].percentages,showCorrectAnswer})
+     return res.send({title:tests.rows[0].title,tests:showCorrectAnswer ? tests.rows[0].tests : testsWithoutAnswers,answers:result.rows[0].answers,result:result.rows[0].result,percent:result.rows[0].percentages,showCorrectAnswer,testId:tests.rows[0].id})
     }
     res.status(404).send([])
   }

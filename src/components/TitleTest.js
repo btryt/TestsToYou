@@ -7,7 +7,7 @@ import {
   } from "@material-ui/core"
 const TitleTest = ({hideInput,forwardRef,step,addTitle,styleBlock,continueTestHandler,deleteSavedTest}) =>{
     return (
-        <Paper elevation={7} style={{width:"100%",minHeight:"30vh",padding:"15px",margin:"3px",display:"flex",alignItems:"center",flexDirection:"column",justifyContent:"center"}}> 
+        <Paper elevation={7} style={{minHeight:"30vh",padding:"8px",display:"flex",alignItems:"center",flexDirection:"column",justifyContent:"center"}}> 
         {!hideInput ? <FormControl fullWidth>
           <TextField
             inputRef={forwardRef}

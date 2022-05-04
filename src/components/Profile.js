@@ -25,8 +25,8 @@ const changeHandler = useCallback((e,newValue) =>{
   return (
     <main>
       <Container className={styles.container} >
-        <Grid container spacing={1} justify="center">
-          <Grid xs={11} item>
+        <Grid container  spacing={1} justify="center">
+          <Grid xs={12} item>
             <Paper >
             <Tabs onChange={changeHandler} variant="fullWidth" value={active} >
                 <Tab className={styles.tabs} label="Мои тесты" />

@@ -19,6 +19,7 @@ const Result = () => {
   const params = useParams()
   const [tests, setTests] = useState([])
   const [testTitle,setTestTitle] = useState("")
+  const [testId,setTestId] = useState(0)
   const [loaded,setLoaded] = useState(false)
   const [answers,setAnswers] = useState([])
   const [result,setResult] = useState("")
@@ -37,6 +38,7 @@ const Result = () => {
         setResult(response.result)
         setPercent(response.percent)
         setShowCorrectAnswer(response.showCorrectAnswer)
+        setTestId(response.testId)
       }
       else{
         location("../find",{replace:true})
@@ -85,11 +87,10 @@ const Result = () => {
                     <Paper elevation={7} key={test.id}>
                     <Box style={{ margin: "8px" }} >
                       <Toolbar variant="dense">
-                        <span
-                          style={{ wordBreak: "break-word",padding:"4px" }}
-                        >
-                          №{i + 1} {test.title}
-                        </span>
+                      <div style={{display:"flex", flexDirection:"column",borderLeft:"4px solid #3f51b5",padding:"12px",margin:"4px"}}>
+                      <Typography style={{wordBreak:"break-word"}} variant="h6">№{i + 1} {test.title}</Typography>
+                      {test.img && <img className="test_image" src={`http://localhost:4000/image/${testId}/${test.id}`} alt="img"/>}
+                      </div>
                       </Toolbar>
                       {test.variants.map((variant) => (
                         <Box key={variant.id}>
@@ -99,8 +100,10 @@ const Result = () => {
                                 <Radio disabled checked={answers.some(answer => answer.testId === test.id && answer.variants.some(v=> v.id === variant.id))} />
                                 }
                             </FormControl>
-                            {showCorrectAnswer ? <p style={{ wordBreak: "break-all",color: colorCheck(answers,test,variant)}}>{variant.title}
-                            </p> :<p>{variant.title}</p>}
+                            <div style={{display:"flex", flexDirection:"column"}}> 
+                              <span style={{wordBreak:"break-word",marginBottom:"4px",color:showCorrectAnswer && colorCheck(answers,test,variant)}}>{variant.title}</span>
+                              {variant.img && <img className="variant_image" src={`http://localhost:4000/image/${testId}/${test.id}-${variant.id}`} alt="img"/>}
+                            </div>
                           </Toolbar>
                         </Box>
                       ))}

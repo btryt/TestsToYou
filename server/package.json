@@ -10,10 +10,12 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.0.1",
+    "dotenv": "^16.0.0",
     "express": "^4.17.1",
     "express-session": "^1.17.2",
     "express-validation": "^3.0.8",
     "lodash.foreach": "^4.5.0",
+    "multer": "^1.4.4",
     "pg": "^8.6.0"
   }
 }

@@ -13,6 +13,7 @@ import {
   TextField,
   CircularProgress,
   Checkbox,
+  
 } from "@material-ui/core"
 import Rating from './Rating'
 import Alert from "./Alert"
@@ -152,19 +153,27 @@ const Test = () => {
                 {tests.length && tests.map((test, i) => (
                   <Paper elevation={7} style={{width:"100%"}} key={test.id}>
                   <Box style={{ margin: "8px" }} >
-                    <Toolbar variant="dense">
+                    <Toolbar  variant="dense">
+                      <div style={{display:"flex", flexDirection:"column",borderLeft:"4px solid #3f51b5",padding:"12px",margin:"4px"}}>
                       <Typography style={{wordBreak:"break-word"}} variant="h6">№{i + 1} {test.title}</Typography>
+                      {test.img && <img className="test_image" src={`http://localhost:4000/image/${testId}/${test.id}`} alt="img"/>}
+                      </div>
                     </Toolbar>
                     {test.variants.map((variant) => (
-                      <Box key={variant.id}>
-                        <Toolbar variant="dense">
-                          <FormControl>
+                      <Box style={{margin:"4px"}} key={variant.id}>
+                        <Toolbar variant="dense"  >
+                        
+                          <FormControl style={{flexShrink:0}}>
                             {!test.multiple ?
                             <Radio  color="secondary" onChange={funcWrapper(changeAnswer,test.id,variant.id)}  checked={isCorrect(correctAnswers,test,variant)} />
                             :<Checkbox  onChange={funcWrapper(changeAnswer,test.id,variant.id)} checked={isCorrect(correctAnswers,test,variant)} />
                             }
                           </FormControl>
-                          <span style={{wordBreak:"break-word"}}>{variant.title}</span>
+                          <div style={{display:"flex", flexDirection:"column"}}> 
+                          <span style={{wordBreak:"break-word",marginBottom:"4px"}}>{variant.title}</span>
+                            {variant.img && <img className="variant_image" src={`http://localhost:4000/image/${testId}/${test.id}-${variant.id}`} alt="img"/>}
+                          </div>
+                          
                         </Toolbar>
                       </Box>
                     ))}
