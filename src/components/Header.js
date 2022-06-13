@@ -62,7 +62,7 @@ const Header = () =>{
             </Button>
             }
             <Menu anchorEl={anchorEl}   open={Boolean(anchorEl)} onClose={handleClose}>
-              <MenuItem onClick={handleClose}><Link style={{color:"white"}} className="menu-link" to="/profile">Профиль</Link></MenuItem>
+              <MenuItem onClick={handleClose}><Link style={{color:"white"}} className="menu-link" to="/profile/test/list">Профиль</Link></MenuItem>
               <MenuItem onClick={handleClose}><Link style={{color:"white"}} className="menu-link" to="/find">Поиск</Link></MenuItem>
               <MenuItem onClick={handleClose}><a style={{color:"white"}} className="menu-link" onClick={logOut} href="/#">Выйти</a></MenuItem>
             </Menu>

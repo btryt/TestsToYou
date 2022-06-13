@@ -1,4 +1,5 @@
 import React, { useRef, useState, useCallback, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import debounce from 'lodash.debounce'
 import Upload from "./Upload"
 import {
@@ -37,8 +38,9 @@ const useStyle = makeStyles((theme)=>({
 }))
 
 let testData = []
-const Create = ({setActive}) => {
+const Create = () => {
   const style = useStyle()
+  const navigate = useNavigate()
   const [tests, setTests] = useState([])
   const [pressed,setPressed] = useState(false)
   const [successfulCreation,setSuccessfulCreation] = useState(false)
@@ -226,7 +228,7 @@ const Create = ({setActive}) => {
       .then(async(res)=>{
         if(res.ok){
           if(data === null){
-            setActive(0)
+            navigate("../test/list",{replace:true})
           }
           setSuccessfulCreation(true)     
         }
@@ -236,7 +238,7 @@ const Create = ({setActive}) => {
       })
     }
     setPressed(false)
-  },[testTitle,showCorrect,characterLimitExceededTitle.length,characterLimitExceededVariant.length,linkAccess,validRecaptcha,setActive])
+  },[testTitle,showCorrect,characterLimitExceededTitle.length,characterLimitExceededVariant.length,linkAccess,validRecaptcha,navigate])
 
   const getData = useCallback((data)=>{
     createTest(data)
@@ -379,7 +381,7 @@ const Create = ({setActive}) => {
                 fullWidth>
                 Добавить вопрос
               </Button>
-              {tests.length ? <Upload setPressed={setPressed} pressed={pressed} getData={getData} setError={setError} successfulCreation={successfulCreation} setSuccessfulCreation={setSuccessfulCreation} setActive={setActive} list={testData} />:""}
+              {tests.length ? <Upload setPressed={setPressed} pressed={pressed} getData={getData} setError={setError} successfulCreation={successfulCreation} setSuccessfulCreation={setSuccessfulCreation} list={testData} />:""}
               {tests.length ? 
                 <Button onClick={saveTest} fullWidth style={{marginBottom:"4px"}}  variant="contained" color="primary">Сохранить тест</Button>
               :""}

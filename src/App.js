@@ -6,6 +6,8 @@ import Login from './components/Login'
 import Profile from "./components/Profile"
 import Test from './components/Test'
 import Result from "./components/Result"
+import Create from "./components/Create"
+import TestsList from "./components/TestsList"
 import Context from './components/context/context'
 import { useEffect, useState } from "react"
 import Home from "./components/Home"
@@ -45,7 +47,11 @@ function App() {
       <Routes>
         <Route path="/" element={<Home/>}/>
         {(loaded && !auth) && <Route path="/login" element={<Login setLogin={setLogin}/>}/>}
-        {loaded && <Route path="/profile" element={<PrivateRoute><Profile/></PrivateRoute>} />}
+        {loaded && <Route path="/profile" element={<PrivateRoute><Profile/></PrivateRoute>} >
+            <Route path="test/list" element={<TestsList/>}/>
+            <Route path="test/create" element={<Create/>}/>
+        </Route>
+        }
         <Route path="/test/:url" element={<Test/>} />
         <Route path="/find" element={<Find/>}/>
         <Route path="/result/:url" element={<Result/>} />

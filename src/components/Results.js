@@ -28,7 +28,7 @@ const Results = ({id,open,setOpen}) =>{
     {field:"percentages",headerName:"Процент",width:150,editable: false,type: 'number'},
     {field:"result",headerName:"Результат",width:150,editable: false},
     {field:"finish_time",headerName:"Время завершения",width:220,editable: false},
-    {field:"url",headerName:"Ссылка на результат",editable:false,width:260,renderCell:(params)=><Link style={{color:"white"}} to={`../result/${params.value}`}>http://localhost/test/result/{params.value}</Link>}])
+    {field:"url",headerName:"Ссылка на результат",editable:false,width:260,renderCell:(params)=><Link style={{color:"white"}} to={`../../result/${params.value}`}>http://localhost/test/result/{params.value}</Link>}])
     
     useEffect(()=>{
         if(open){

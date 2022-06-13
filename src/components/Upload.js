@@ -1,8 +1,10 @@
 import React,{useCallback,useEffect,useState,useMemo} from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Modal,Paper,Button, Container } from '@material-ui/core'
 import uploadImg from '../assets/upload-24.png'
 import uploadedImg from '../assets/uploaded-24.png'
 const Upload = ({list,successfulCreation,setActive,setError,pressed,setPressed,getData,setSuccessfulCreation}) =>{
+    const navigate = useNavigate()
     const [open,setOpen] = useState(false)
     const [imgList,setimgList] = useState([])
     const formData = useMemo(()=> new FormData(),[])
@@ -72,7 +74,7 @@ const Upload = ({list,successfulCreation,setActive,setError,pressed,setPressed,g
             if(imgList.length){
             let response = await fetch("/api/upload",{method:"POST",body:formData})
             if(response.ok){
-                setActive(0)
+                navigate('../test/list',{replace:true})
             }else {
                 let errorMessage = await response.text()
                 setPressed(false)
@@ -85,7 +87,7 @@ const Upload = ({list,successfulCreation,setActive,setError,pressed,setPressed,g
             setPressed(false)
             setError(e)
         }
-    },[formData,setActive,setError,setPressed,imgList,setSuccessfulCreation])
+    },[formData,setError,setPressed,imgList,setSuccessfulCreation,navigate])
 
 
     const upload = useCallback(async(e,id,variantId)=>{   
@@ -151,9 +153,11 @@ const Upload = ({list,successfulCreation,setActive,setError,pressed,setPressed,g
     },[imgList,formData])
 
     useEffect(()=>{
-        if(successfulCreation){
+        let isMounted = true
+        if(successfulCreation && isMounted){
             send()
         }
+        return () => isMounted = false
     },[send,successfulCreation])
     useEffect(()=>{
         if(pressed){

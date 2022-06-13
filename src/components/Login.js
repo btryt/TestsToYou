@@ -83,7 +83,7 @@ const Login = ({setLogin}) =>{
           let response = await res.json()
           if(res.ok){
             setLogin(response)
-            location("/profile",{replace:true})
+            location("/profile/test/list",{replace:true})
           }
           else setErrorMessage(response.message)
         })

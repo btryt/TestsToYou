@@ -1,5 +1,6 @@
-import React, { useState,useCallback } from "react"
+import React, { useState,useCallback, useEffect } from "react"
 import { Container, Paper, Grid, Tabs,Tab } from "@material-ui/core"
+import { Outlet,useNavigate,useLocation } from "react-router-dom"
 import { makeStyles } from "@material-ui/core/styles"
 import TestsList from "./TestsList"
 import Create from "./Create"
@@ -17,16 +18,28 @@ const useStyles = makeStyles(theme =>({
 const Profile = () => {
 const [active,setActive] = useState(0)
 const styles = useStyles()
+const navigate = useNavigate()
+const location = useLocation()
 
 
-const changeHandler = useCallback((e,newValue) =>{
-  setActive(newValue)
-},[])
+const changeHandler = useCallback((e,value) =>{
+
+  if(value === 0) navigate("test/list")
+  else navigate("test/create")
+  setActive(value)
+},[navigate])
+  useEffect(()=>{
+   let path = location.pathname.split("/").pop()
+   if(path === "list"){
+     setActive(0)
+   }else setActive(1)
+
+  },[location.pathname])
   return (
-    <main>
+    
       <Container className={styles.container} >
-        <Grid container  spacing={1} justify="center">
-          <Grid xs={12} item>
+        <Grid container  spacing={1} justify="center" >
+          <Grid xs={12} item >
             <Paper >
             <Tabs onChange={changeHandler} variant="fullWidth" value={active} >
                 <Tab className={styles.tabs} label="Мои тесты" />
@@ -34,12 +47,13 @@ const changeHandler = useCallback((e,newValue) =>{
             </Tabs>
             </Paper>
             
-            {active === 0 ? <TestsList  /> : <Create setActive={setActive}/>}
+              <Outlet/>
+            {/* {active === 0 ? <TestsList  /> : <Create setActive={setActive}/>} */}
             
           </Grid>
         </Grid>
       </Container>
-    </main>
+    
   )
 }
 

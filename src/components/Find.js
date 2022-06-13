@@ -62,10 +62,10 @@ const Find = () =>{
 
     return (
     <main>
-        <Container style={{marginTop:"4px"}}>
+        <Container style={{marginTop:"40px"}}>
             <Grid container justify="center" alignItems="center">
                 <Grid item style={{width:"100%"}}>
-                    <Paper elevation={7} style={{minHeight:"50vh"}} >
+                    <Paper elevation={7} style={{minHeight:"50vh",padding:"8px"}} >
                         <Typography variant="h6" style={{textAlign:"center"}}>Поиск тестов</Typography>
                         <Grid container justify="center">
                             <Grid item sm={5} >

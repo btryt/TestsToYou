@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
     position:"relative",
-    height: '100%',
+    height: '520px',
     
     [theme.breakpoints.down('sm')]:{
        width:"100%",   
@@ -28,19 +28,22 @@ function TestList() {
   const [selected, setSelected] = React.useState([]);
   const [deleted,setDeleted] = useState(0)
   const [columns,setColumns] = useState([{field:"title",headerName:"Название",width:150,editable: false},
-    {field:"url",headerName:"Ссылка на тест",editable:false,width:260,renderCell:(params)=><Link style={{color:"white"}}  to={`../test/${params.value}`}>http://localhost/test/result/{params.value}</Link>},
+    {field:"url",headerName:"Ссылка на тест",editable:false,width:260,renderCell:(params)=><Link style={{color:"white"}}  to={`../../test/${params.value}`}>http://localhost/test/result/{params.value}</Link>},
     {field:"Реузультат",headerName:"",width:180,editable: false, renderCell: (params)=> <Button style={{color:"white"}} onClick={()=>getResults(params.id)} variant="outlined" color="primary">Информация</Button>}])
 
 
   useEffect(()=>{
+    let isMounted = true
     setLoading(true)
     fetch("/api/test/list",{method:"GET"})
     .then(async res =>{
       let tests = await res.json()
+      if(isMounted){
       setRows([...tests])
       setLoading(false)
+      }
     })
-    
+      return () => isMounted = false
   },[deleted])
   const getResults = (id)=>{
     setOpen(true)
@@ -68,7 +71,7 @@ const deleteTest = useCallback(() =>{
 
   return (
     <Paper className={classes.root} >
-      <DataGrid columns={columns} rows={rows} style={{height:"420px",marginTop:"40px"}} loading={loading} components={{NoRowsOverlay:NoRowsOverlay}} onSelectionModelChange={onSelected}  hideFooterSelectedRowCount pageSize={5} checkboxSelection disableSelectionOnClick />
+      <DataGrid columns={columns} rows={rows} style={{marginTop:"40px"}} loading={loading} components={{NoRowsOverlay:NoRowsOverlay}} onSelectionModelChange={onSelected}  hideFooterSelectedRowCount pageSize={5} checkboxSelection disableSelectionOnClick />
       <Results open={open} id={testId} setOpen={setOpen}  />
       {selected.length ? <Button onClick={deleteTest} style={{position:"absolute",right:'5px',top:'2px'}} variant="contained" color="secondary"><span style={{fontSize:'23px'}}>&#128465;</span></Button>:""}
     </Paper>
