@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Modal,Paper,Button, Container } from '@material-ui/core'
 import uploadImg from '../assets/upload-24.png'
 import uploadedImg from '../assets/uploaded-24.png'
-const Upload = ({list,successfulCreation,setActive,setError,pressed,setPressed,getData,setSuccessfulCreation}) =>{
+const Upload = ({list,successfulCreation,setError,setPressed,setSuccessfulCreation,pressed,getData}) =>{
     const navigate = useNavigate()
     const [open,setOpen] = useState(false)
     const [imgList,setimgList] = useState([])
@@ -153,12 +153,14 @@ const Upload = ({list,successfulCreation,setActive,setError,pressed,setPressed,g
     },[imgList,formData])
 
     useEffect(()=>{
-        let isMounted = true
-        if(successfulCreation && isMounted){
+        if(successfulCreation && imgList.length ){
             send()
         }
-        return () => isMounted = false
-    },[send,successfulCreation])
+        else if (successfulCreation && !imgList.length){
+            navigate('../test/list',{replace:true})
+        }
+    },[send,successfulCreation,filterData,imgList.length,navigate])
+
     useEffect(()=>{
         if(pressed){
             let flData = filterData()

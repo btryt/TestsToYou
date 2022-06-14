@@ -2,8 +2,6 @@ import React, { useState,useCallback, useEffect } from "react"
 import { Container, Paper, Grid, Tabs,Tab } from "@material-ui/core"
 import { Outlet,useNavigate,useLocation } from "react-router-dom"
 import { makeStyles } from "@material-ui/core/styles"
-import TestsList from "./TestsList"
-import Create from "./Create"
 const useStyles = makeStyles(theme =>({
     tabs:{
         flexGrow: 1,
@@ -48,7 +46,6 @@ const changeHandler = useCallback((e,value) =>{
             </Paper>
             
               <Outlet/>
-            {/* {active === 0 ? <TestsList  /> : <Create setActive={setActive}/>} */}
             
           </Grid>
         </Grid>

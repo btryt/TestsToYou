@@ -205,12 +205,13 @@ const Create = () => {
       }
   },300)
 
-  const createTest = useCallback((data = null)=>{
+  const createTest = useCallback((data = testData)=>{
     let isEmpty = false
+    setSuccessfulCreation(false)     
     setError(null)
     setEmptyTestTitle([])
     setEmptyVariantTitle([])
-    let array = [...testData]
+    let array = data
     array.forEach((test,index)=>{
       if(!test.title.trim()){
         isEmpty = true
@@ -224,23 +225,22 @@ const Create = () => {
       })
     })
     if(!characterLimitExceededTitle.length && !characterLimitExceededVariant.length && !isEmpty && validRecaptcha ){
-      fetch('/api/test/create',{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tests:data !== null ? data: testData,testTitle,showCorrect,linkAccess})})
+      fetch('/api/test/create',{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tests:data,testTitle,showCorrect,linkAccess})})
       .then(async(res)=>{
         if(res.ok){
-          if(data === null){
-            navigate("../test/list",{replace:true})
-          }
           setSuccessfulCreation(true)     
+          setPressed(false)
         }
         else{
           setError("Произошла неизвестна ошибка при создании теста")
+          setPressed(false)
         }
       })
     }
-    setPressed(false)
-  },[testTitle,showCorrect,characterLimitExceededTitle.length,characterLimitExceededVariant.length,linkAccess,validRecaptcha,navigate])
+  },[testTitle,showCorrect,characterLimitExceededTitle.length,characterLimitExceededVariant.length,linkAccess,validRecaptcha])
 
   const getData = useCallback((data)=>{
+    console.log("data",data)
     createTest(data)
   },[createTest])
   const saveTest = useCallback(()=>{
@@ -381,11 +381,11 @@ const Create = () => {
                 fullWidth>
                 Добавить вопрос
               </Button>
-              {tests.length ? <Upload setPressed={setPressed} pressed={pressed} getData={getData} setError={setError} successfulCreation={successfulCreation} setSuccessfulCreation={setSuccessfulCreation} list={testData} />:""}
+              {tests.length ? <Upload setPressed={setPressed} pressed={pressed} getData={getData}  setError={setError} successfulCreation={successfulCreation} setSuccessfulCreation={setSuccessfulCreation} list={testData} />:""}
               {tests.length ? 
                 <Button onClick={saveTest} fullWidth style={{marginBottom:"4px"}}  variant="contained" color="primary">Сохранить тест</Button>
               :""}
-              {tests.length ? <Button variant="contained" onClick={()=> setPressed(true)}  fullWidth style={{background:"lime", }}>Создать тест</Button>:""}
+              {tests.length ? <Button variant="contained" onClick={()=>setPressed(true)}  fullWidth style={{background:"lime", }}>Создать тест</Button>:""}
               {tests.length ? <div><ReCAPTCHA sitekey="6LdCqbYbAAAAAKPcfcFUHPrEfBchHSOJlBaG3U0-" onExpired={expiredRecaptcha} onChange={recaptcha}/></div>:""}
               {emptyTestTitle.length?<Alert variant="error">Пропущенно название вопроса {emptyTestTitle.map((em,i)=>(<span key={i} style={{marginLeft:"8px"}}>№{em}</span>))}</Alert>:""}
               {emptyVariantTitle.length ? <Alert variant="error">Пропущен{emptyVariantTitle.map((v,i)=>(<span key={i} style={{marginLeft:"8px"}}>вариант ответа <span style={{fontWeight:"900"}}>№{v.variant}</span> в вопросе <span style={{fontWeight:"900"}}>№{v.test}</span>,</span>))}</Alert>:""}
