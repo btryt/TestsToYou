@@ -55,9 +55,11 @@ const Header = () =>{
             <Typography variant="h6" className={styles.title}>
               Test<span style={{color:"lime"}}>To</span>You
             </Typography>
-            {(context.loaded && !context.auth) ? <Button variant="outlined" className={styles.menuButton}>
-              <Link style={{color:"white"}} to="/login">Войти</Link>
-            </Button>:<Button onClick={handleClick} variant="outlined" className={styles.menuButton}>
+            {(context.loaded && !context.auth) ? <>
+            <Link style={{color:"white"}} to="/login"><Button variant="outlined" className={styles.menuButton}>Войти</Button></Link>
+            <Link style={{color:"white"}} to="/registration"><Button variant="outlined" className={styles.menuButton}>Регистрация</Button></Link>
+             </>:
+            <Button onClick={handleClick} variant="outlined" className={styles.menuButton}>
               Меню
             </Button>
             }

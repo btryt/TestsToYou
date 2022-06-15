@@ -1,5 +1,4 @@
 import React, { useRef, useState, useCallback, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
 import debounce from 'lodash.debounce'
 import Upload from "./Upload"
 import {
@@ -40,7 +39,6 @@ const useStyle = makeStyles((theme)=>({
 let testData = []
 const Create = () => {
   const style = useStyle()
-  const navigate = useNavigate()
   const [tests, setTests] = useState([])
   const [pressed,setPressed] = useState(false)
   const [successfulCreation,setSuccessfulCreation] = useState(false)
@@ -240,7 +238,6 @@ const Create = () => {
   },[testTitle,showCorrect,characterLimitExceededTitle.length,characterLimitExceededVariant.length,linkAccess,validRecaptcha])
 
   const getData = useCallback((data)=>{
-    console.log("data",data)
     createTest(data)
   },[createTest])
   const saveTest = useCallback(()=>{

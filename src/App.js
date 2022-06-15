@@ -3,11 +3,13 @@ import React from 'react'
 import { Routes, Route } from "react-router-dom"
 import Header from "./components/Header"
 import Login from './components/Login'
+import Registration from "./components/Registration"
 import Profile from "./components/Profile"
 import Test from './components/Test'
 import Result from "./components/Result"
 import Create from "./components/Create"
 import TestsList from "./components/TestsList"
+import NotFound from "./components/NotFound"
 import Context from './components/context/context'
 import { useEffect, useState } from "react"
 import Home from "./components/Home"
@@ -46,7 +48,10 @@ function App() {
       
       <Routes>
         <Route path="/" element={<Home/>}/>
-        {(loaded && !auth) && <Route path="/login" element={<Login setLogin={setLogin}/>}/>}
+        {(loaded && !auth) && <>
+          <Route path="/login" element={<Login setLogin={setLogin}/>}/>
+          <Route path="/registration" element={<Registration/>}/>
+        </>}
         {loaded && <Route path="/profile" element={<PrivateRoute><Profile/></PrivateRoute>} >
             <Route path="test/list" element={<TestsList/>}/>
             <Route path="test/create" element={<Create/>}/>
@@ -55,6 +60,7 @@ function App() {
         <Route path="/test/:url" element={<Test/>} />
         <Route path="/find" element={<Find/>}/>
         <Route path="/result/:url" element={<Result/>} />
+        {loaded && <Route path="*" element={<NotFound/>}></Route>}
       </Routes>
     </MuiThemeProvider>
     </Context.Provider>

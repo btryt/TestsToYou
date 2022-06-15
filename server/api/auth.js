@@ -4,6 +4,9 @@ const db = require("../db")
 const router = Router()
 
 router.post("/registration",async(req,res)=>{
+    if(req.session.auth){
+      return res.status(403).send({message:"Уже авторизован"})
+    }
     const {email,password} = req.body
     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if(!re.test(email)){
@@ -29,6 +32,9 @@ router.post("/registration",async(req,res)=>{
 })
 
 router.post("/login",async(req,res)=>{
+    if(req.session.auth){
+      return res.status(403).send({message:"Уже авторизован"})
+    }
     const {email,password} = req.body
     try{
       let user = await db.query("SELECT email,password,id FROM users WHERE email = $1",[email])
@@ -50,8 +56,11 @@ router.post("/login",async(req,res)=>{
 })
 
 router.post("/logout",(req,res)=>{
-  req.session.auth = false
-  req.session.userId = null
+  if(req.session.auth){
+    req.session.destroy((err)=>{
+      if(err) return res.status(400).send(false)
+    })
+  }
   res.send(true)
 })
 
