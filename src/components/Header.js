@@ -113,78 +113,55 @@ const Header = () => {
                   </Link>
                 </Box>
                 <Box className={styles.smMenu}>
-                  <Button
-                    onClick={handleClick}
-                    variant="outlined"
-                    className={styles.menuButton}
-                  >
+                  <Button  onClick={handleClick}   variant="outlined" className={styles.menuButton}  >
                     <span style={{ fontSize: "20px" }} onClick={()=>toggleHandler(true)}>&#8801;</span>
                   </Button>
+                  </Box>
+                  </>):<><Box className={styles.linkList}>
+                  <Button onClick={handleClick} variant="outlined" className={styles.menuButton} > Меню </Button>
+                   <Menu anchorEl={anchorEl}  open={Boolean(anchorEl)} onClose={handleClose}>
+                     <MenuItem onClick={handleClose}>
+                       <Link style={{ color: "white" }} className="menu-link" to="/profile/test/list" > Профиль</Link>
+                      </MenuItem>
+                     <MenuItem onClick={handleClose}>
+                      <Link style={{ color: "white" }} className="menu-link"  to="/find" > Поиск</Link>
+                      </MenuItem>
+                      <MenuItem onClick={handleClose}>
+                        <a style={{ color: "white" }} className="menu-link" onClick={logOut}href="/#" > Выйти  </a>
+                      </MenuItem>
+                    </Menu> 
+                  </Box>
+                    <Box className={styles.smMenu}>
+                    <Button  onClick={() =>toggleHandler(true)}   variant="outlined" className={styles.menuButton}  >
+                      <span style={{ fontSize: "20px" }} onClick={()=>toggleHandler(true)}>&#8801;</span>
+                    </Button>
+                    </Box>
+                  </>
+                  }
+                  <Box className={styles.smMenu}>
                   <Drawer anchor="top" open={open} onClose={()=>toggleHandler(false)}>
-                    {[
+                    {(!context.auth ? [
                       { text: "Регистрация", link: "/registration" },
                       { text: "Войти", link: "/login" },
                       { text: "Поиск", link: "/find" },
-                    ].map((obj) => (
+                    ]:[
+                      { text: "Профиль", link: "/profile" },
+                      { text: "Поиск", link: "/find" },
+                      { text: "Выйти", link: "" },
+                    ]).map((obj) => (
                       <React.Fragment key={obj.text}>
                         <List className={styles.list}>
                           <ListItem className={styles.list}>
-                            <Link to={obj.link} onClick={()=>toggleHandler(false)} className={styles["menu-link"]}>
+                            {obj.text !== "Выйти" ? <Link to={obj.link} onClick={()=>toggleHandler(false)} className={styles["menu-link"]}>
                               {obj.text}
-                            </Link>
+                            </Link>:<a  className={styles["menu-link"]} onClick={(e)=>{logOut(e);toggleHandler(false)}}href="/login" > Выйти  </a>}
                           </ListItem>
                         </List>
                         <Divider />
                       </React.Fragment>
                     ))}
                   </Drawer>
-                </Box>
-              </>
-            ) : (
-              <>
-                <Button
-                  onClick={handleClick}
-                  variant="outlined"
-                  className={styles.menuButton}
-                >
-                  Меню
-                </Button>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={handleClose}
-                >
-                  <MenuItem onClick={handleClose}>
-                    <Link
-                      style={{ color: "white" }}
-                      className="menu-link"
-                      to="/profile/test/list"
-                    >
-                      Профиль
-                    </Link>
-                  </MenuItem>
-                  <MenuItem onClick={handleClose}>
-                    <Link
-                      style={{ color: "white" }}
-                      className="menu-link"
-                      to="/find"
-                    >
-                      Поиск
-                    </Link>
-                  </MenuItem>
-                  <MenuItem onClick={handleClose}>
-                    <a
-                      style={{ color: "white" }}
-                      className="menu-link"
-                      onClick={logOut}
-                      href="/#"
-                    >
-                      Выйти
-                    </a>
-                  </MenuItem>
-                </Menu>
-              </>
-            )}
+              </Box>
           </Toolbar>
         </Container>
       </AppBar>
