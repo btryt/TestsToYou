@@ -1,7 +1,8 @@
 import React,{useCallback, useRef, useState} from 'react'
+import NoRowsOverlay from './NoRowsOverlay'
 import {Link} from 'react-router-dom'
 import debounce from 'lodash.debounce'
-import {Container,Grid,Paper,TextField,Typography} from '@material-ui/core'
+import {Box, Container,Grid,Paper,TextField,Typography} from '@material-ui/core'
 import {DataGrid} from '@material-ui/data-grid'
 const Find = () =>{
     const ref = useRef()
@@ -61,23 +62,26 @@ const Find = () =>{
     },[title,hasNextPage,pagesList])
 
     return (
-    <main>
+    
         <Container style={{marginTop:"40px"}}>
             <Grid container justify="center" alignItems="center">
-                <Grid item style={{width:"100%"}}>
+                <Grid sm={7} item style={{width:"100%"}}>
                     <Paper elevation={7} style={{minHeight:"50vh",padding:"8px"}} >
                         <Typography variant="h6" style={{textAlign:"center"}}>Поиск тестов</Typography>
-                        <Grid container justify="center">
-                            <Grid item sm={5} >
+                            <Box justifyContent="center" alignContent="center" width="100%">
+                               
                                 <TextField inputRef={ref} onChange={findTest} margin="dense" fullWidth label="Название теста" variant="outlined"  />
-                                <DataGrid onPageChange={(p)=> uploadingHandler(p.page)} loading={loading} pageSize={5} style={{height:"300px"}} columns={columns} rows={list}/>
-                            </Grid>
-                        </Grid>
+                               
+                                
+                                <DataGrid components={{NoRowsOverlay:NoRowsOverlay}} onPageChange={(p)=> uploadingHandler(p.page)} loading={loading} pageSize={5} style={{height:"300px"}} columns={columns} rows={list}/>
+                                
+                           </Box>
+                        
                     </Paper>
                 </Grid>
             </Grid>
         </Container>
-    </main>
+   
     )
 }
 

@@ -92,7 +92,7 @@ import {
           justify="center"
          
         >
-          <Grid item sm={7}>
+          <Grid item md={7} xs={12}>
            <Paper elevation={3} className={styles.paper}>
            <Typography variant="h6">Регистрация</Typography>
             <FormGroup className={styles.form} >

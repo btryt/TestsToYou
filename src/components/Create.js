@@ -380,7 +380,7 @@ const Create = () => {
               </Button>
               {tests.length ? <Upload setPressed={setPressed} pressed={pressed} getData={getData}  setError={setError} successfulCreation={successfulCreation} setSuccessfulCreation={setSuccessfulCreation} list={testData} />:""}
               {tests.length ? 
-                <Button onClick={saveTest} fullWidth style={{marginBottom:"4px"}}  variant="contained" color="primary">Сохранить тест</Button>
+                <Button onClick={saveTest} fullWidth style={{marginBottom:"4px"}}  variant="contained" color="secondary">Сохранить тест</Button>
               :""}
               {tests.length ? <Button variant="contained" onClick={()=>setPressed(true)}  fullWidth style={{background:"lime", }}>Создать тест</Button>:""}
               {tests.length ? <div><ReCAPTCHA sitekey="6LdCqbYbAAAAAKPcfcFUHPrEfBchHSOJlBaG3U0-" onExpired={expiredRecaptcha} onChange={recaptcha}/></div>:""}
