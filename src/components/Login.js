@@ -80,8 +80,8 @@ const Login = ({setLogin}) =>{
              <Paper elevation={3} className={styles.paper}>
                <Typography variant="h6">Войти</Typography>
               <FormGroup className={styles.form} >
-                <TextField inputRef={loginEmail} type="email" className={styles.input}variant="outlined" autoFocus label="email"/>
-                <TextField inputRef={loginPassword} type="password" className={styles.input} variant="outlined" label="password"/>
+                <TextField inputRef={loginEmail} type="email" className={styles.input}variant="outlined" autoFocus label="Почта"/>
+                <TextField inputRef={loginPassword} type="password" className={styles.input} variant="outlined" label="Пароль"/>
                 <Button onClick={login} className={styles.button} variant="contained" color="primary">
                     Войти
                 </Button>

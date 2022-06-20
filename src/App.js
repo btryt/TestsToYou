@@ -12,7 +12,6 @@ import TestsList from "./components/TestsList"
 import NotFound from "./components/NotFound"
 import Context from './components/context/context'
 import { useEffect, useState } from "react"
-import Home from "./components/Home"
 import Find from "./components/Find"
 import {PrivateRoute} from "./HOC/PrivateRoute"
 import {createMuiTheme,MuiThemeProvider} from '@material-ui/core/styles'
@@ -47,7 +46,7 @@ function App() {
       <Header />
       
       <Routes>
-        <Route path="/" element={<Home/>}/>
+       
         {(loaded && !auth) && <>
           <Route path="/login" element={<Login setLogin={setLogin}/>}/>
           <Route path="/registration" element={<Registration/>}/>

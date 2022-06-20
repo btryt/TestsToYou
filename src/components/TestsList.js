@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
     position:"relative",
-    height: '520px',
+    height: '420px',
     
     [theme.breakpoints.down('sm')]:{
        width:"100%",   
@@ -27,9 +27,9 @@ function TestList() {
   const [rows,setRows] = useState([])
   const [selected, setSelected] = React.useState([]);
   const [deleted,setDeleted] = useState(0)
-  const [columns,setColumns] = useState([{field:"title",headerName:"Название",width:150,editable: false},
-    {field:"url",headerName:"Ссылка на тест",editable:false,width:260,renderCell:(params)=><Link style={{color:"white"}}  to={`../../test/${params.value}`}>http://localhost/test/result/{params.value}</Link>},
-    {field:"Реузультат",headerName:"",width:180,editable: false, renderCell: (params)=> <Button style={{color:"white"}} onClick={()=>getResults(params.id)} variant="outlined" color="primary">Информация</Button>}])
+  const [columns,setColumns] = useState([{field:"title",headerName:"Название",width:250,editable: false},
+    {field:"url",headerName:"Ссылка на тест",editable:false,width:260,renderCell:(params)=><Link style={{color:"white"}}  to={`../../test/${params.value}`}>http://localhost/test/{params.value}</Link>},
+    {field:"Реузультат",headerName:"",width:180,editable: false, renderCell: (params)=> <Button style={{color:"white"}} onClick={()=>getResults(params.id)} variant="outlined" color="default">Информация</Button>}])
 
 
   useEffect(()=>{

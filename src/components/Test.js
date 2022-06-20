@@ -26,6 +26,7 @@ const Test = () => {
   const [step,setStep] = useState(0)
   const [loaded,setLoaded] = useState(false)
   const [testId,setTestId] = useState(0)
+  const [userLogin,setUserLogin] = useState("")
   const [emptyAnswer,setEmptyAnswer] = useState(false) 
   const [title,setTitle] = useState("")
   const [correctAnswers,setCorrectAnswers] = useState([])
@@ -43,6 +44,7 @@ const Test = () => {
               let response = await res.json()
               setTests([...response.rows.tests])
               setTitle(response.title)
+              setUserLogin(response.userLogin)
               setTestId(response.testId)
           }
           else{
@@ -145,9 +147,14 @@ const Test = () => {
       <Grid  container>
        {loaded ?<Grid xs={12} item>
             <Paper elevation={7}>
+              <Box flexDirection="column">
             <Typography style={{ textAlign: "center",wordBreak:"break-word",padding:"5px 0 5px 0" }} variant="h5">
               {title}
             </Typography>
+            <Typography style={{ textAlign: "center",wordBreak:"break-word",padding:"5px 0 5px 0" }} variant="h6">
+             Тест создан: {userLogin}
+            </Typography>
+              </Box>
             </Paper>
             <>
                 {tests.length && tests.map((test, i) => (

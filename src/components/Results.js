@@ -20,7 +20,9 @@ const useStyles = makeStyles((theme)=>({
 const Results = ({id,open,setOpen}) =>{
     const classes = useStyles()
     const [loading,setLoading] =useState(false)
+    const [showList,setShowList] = useState(false)
     const [information, setInformation] = useState([])
+    const [usersRating,setUsersRating] = useState([])
     const [deleted,setDeleted] = useState(0)
     const [selected,setSelected] = useState([])
     const [results,setResults] = useState([])
@@ -29,7 +31,9 @@ const Results = ({id,open,setOpen}) =>{
     {field:"result",headerName:"Результат",width:150,editable: false},
     {field:"finish_time",headerName:"Время завершения",width:220,editable: false},
     {field:"url",headerName:"Ссылка на результат",editable:false,width:260,renderCell:(params)=><Link style={{color:"white"}} to={`../../result/${params.value}`}>http://localhost/test/result/{params.value}</Link>}])
-    
+    const [ratingColumns,setRatingColumns] = useState([
+    {field:"login",headerName:"Пользователь",width:250,editable: false,align:"right",headerAlign:"right"},
+    {field:"rating",headerName:"Рейтинг",width:150,editable: false,align:"right",headerAlign:"right"}])
     useEffect(()=>{
         if(open){
             setLoading(true)
@@ -37,6 +41,7 @@ const Results = ({id,open,setOpen}) =>{
             .then(async res=>{
                 const data = await res.json()
                 setResults(data.rows)
+                setUsersRating(data.usersRating)
                 setInformation([{averagePercentage:data.averagePercentage,numOfCompletedTest:data.numOfCompletedTest,averageRating:data.averageRating}])
                 setLoading(false)
             })
@@ -45,6 +50,8 @@ const Results = ({id,open,setOpen}) =>{
     const onClose = useCallback(()=>{
         setOpen(false)
         setResults([])
+        setUsersRating([])
+        setShowList(false)
         setSelected([])
     },[setOpen])
 
@@ -70,16 +77,22 @@ const Results = ({id,open,setOpen}) =>{
         }
     },[selected])
     
+    const showListRating = useCallback(()=>{
+        setShowList(prev => !prev)
+    },[])
+
     return (
     <Modal style={{display:"flex",justifyContent:"center",alignItems:"center"}} onClose={onClose} open={open}>
         <Paper className={classes.root}  >
          {selected.length ? <Button onClick={deleteResult} style={{position:"absolute",right:'3px',top:'3px'}} variant="contained" color="secondary">Удалить результат</Button>:""}
-            <DataGrid components={{NoRowsOverlay:NoRowsOverlay}} style={{height:"420px",marginTop:"40px"}} loading={loading} hideFooterSelectedRowCount onSelectionModelChange={onSelected} rows={results} columns={columns} pageSize={5} checkboxSelection disableSelectionOnClick/>
+            {!showList ? <DataGrid components={{NoRowsOverlay:NoRowsOverlay}} style={{height:"420px",marginTop:"40px"}} loading={loading} hideFooterSelectedRowCount onSelectionModelChange={onSelected} rows={results} columns={columns} pageSize={5} checkboxSelection disableSelectionOnClick/>
+            : <DataGrid components={{NoRowsOverlay:NoRowsOverlay}} style={{height:"420px",marginTop:"40px"}} loading={loading} hideFooterSelectedRowCount rows={usersRating} columns={ratingColumns} checkboxSelection={false}   pageSize={5}  />}
             {information.map((info,i)=>(
                 <div key={i} style={{display:'flex',flexDirection:'column',margin:"4px"}}>
                     <span>Средний процент: {info.averagePercentage}</span>
                     <span>Колличество пройденных: {info.numOfCompletedTest}</span>
                     <span>Рейтинг теста: {info.averageRating}</span>
+                    {info.averageRating > 0 ? <Button variant='contained' color="primary" onClick={showListRating}>{!showList ? "Список рейтинга" :"Список результатов"}</Button>:""}
                 </div>
             ))}
         </Paper> 

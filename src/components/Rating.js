@@ -16,6 +16,7 @@ const Rating = ({style,testId,setErrorMessage}) => {
   const [selectedIndex,setSelectedIndex] = useState(-1)
   const [globalRating,setGlobalRating] = useState(-1)
   const [averageRating,setAverageRating] = useState(0)
+  const [update,setUpdate] = useState(0)
   const [numberOfRated,setNumberOfRated] = useState(0)
   const [hoverElement,setHoverElement] = useState(false)
   const [isFloat,setIsFloat] = useState(false)
@@ -35,7 +36,7 @@ const Rating = ({style,testId,setErrorMessage}) => {
         }
         else setGlobalRating(rating -1)
     })
-  },[testId])
+  },[testId,update])
 
   useEffect(()=>{
     if(globalRating !== -1){
@@ -60,6 +61,7 @@ const Rating = ({style,testId,setErrorMessage}) => {
       if(!res.ok){
         setErrorMessage(res.message)
       }
+      else setUpdate(Math.random())
     })
   },[setErrorMessage,testId])
   const overElement = useCallback((id) =>{

@@ -18,7 +18,4 @@ app.use(session({
 app.use("/api",authRoute)
 app.use("/api",testRoute)
 app.use("/api",upload)
-app.post("/uf",(req,res)=>{
-    res.send(req.body)
-})
 app.listen(4000)

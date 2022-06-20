@@ -4,9 +4,14 @@ import {
     Button,
     FormControl,
     Paper,
+    Grid,
+    Container
   } from "@material-ui/core"
 const TitleTest = ({hideInput,forwardRef,step,addTitle,styleBlock,continueTestHandler,deleteSavedTest}) =>{
     return (
+      <Container style={{height:"50vh",display:"flex"}}>
+      <Grid container justify="center" alignItems="center">
+      <Grid item md={8} xs={12} >
         <Paper elevation={7} style={{minHeight:"30vh",padding:"8px",display:"flex",alignItems:"center",flexDirection:"column",justifyContent:"center"}}> 
         {!hideInput ? <FormControl fullWidth>
           <TextField
@@ -33,6 +38,9 @@ const TitleTest = ({hideInput,forwardRef,step,addTitle,styleBlock,continueTestHa
         </div>
         }
         </Paper>
+        </Grid>
+        </Grid>
+        </Container>
     )
 }
 

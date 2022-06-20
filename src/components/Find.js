@@ -11,8 +11,9 @@ const Find = () =>{
     const [pagesList,setPagesList] = useState(new Set())
     const [hasNextPage,setHasNextPage] = useState(false)
     const [loading,setLoading] = useState(false)
-    const [columns,setColumns] = useState([{field:"title",headerName:"Название",width:230,editable: false},
-    {field:"url",headerName:"Ссылка",width:250,editable: false,renderCell:(params)=><Link style={{color:"white"}} to={`../test/${params.value}`}>http://localhost/test/{params.value}</Link>}])
+    const [columns,setColumns] = useState([{field:"title",headerName:"Название",width:230,editable: false, sortable: false},
+    {field:"url",headerName:"Ссылка",width:250,editable: false,sortable: false,renderCell:(params)=><Link style={{color:"white"}} to={`../test/${params.value}`}>http://localhost/test/{params.value}</Link>},
+    {field:"login",headerName:"Создатель",width:200,editable: false,sortable: false}])
     
     const findTest = debounce((e)=>{
         if(e.target.value.trim() && e.target.value.trim().length <=120){

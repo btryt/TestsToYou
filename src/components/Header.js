@@ -73,6 +73,7 @@ const Header = () => {
 
 
   const toggleHandler = useCallback((op)=>{
+      setAnchorEl(null)
       setOpen(op)
   },[])
   const logOut = useCallback(
@@ -145,7 +146,7 @@ const Header = () => {
                       { text: "Войти", link: "/login" },
                       { text: "Поиск", link: "/find" },
                     ]:[
-                      { text: "Профиль", link: "/profile" },
+                      { text: "Профиль", link: "/profile/test/list" },
                       { text: "Поиск", link: "/find" },
                       { text: "Выйти", link: "" },
                     ]).map((obj) => (

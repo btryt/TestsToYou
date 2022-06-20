@@ -29,7 +29,7 @@ const useStyle = makeStyles((theme)=>({
     marginTop:"4px",
     display:"flex",
     flexDirection:"column",
-    width:"50%",
+    width:"70%",
     [theme.breakpoints.down('sm')]: {
       width:"100%"
     },
@@ -278,7 +278,16 @@ const Create = () => {
     }
   },[error])
   return (
-    <div>
+    <>
+    {step === 0 ? (
+            <WrappedComponent 
+            hideInput={hideInput} 
+            ref={ref} step={step} 
+            addTitle={addTitle} 
+            styleBlock={style.block} continueTestHandler={continueTestHandler} deleteSavedTest={deleteSavedTest} />
+      ) 
+        :
+
       <Grid
         container
         alignItems="center"
@@ -286,13 +295,6 @@ const Create = () => {
         style={{ minHeight: "50vh", flexWrap: "nowrap" }}
       >
         <Grid sm={10} item>
-          {step === 0 ? (
-            <WrappedComponent 
-            hideInput={hideInput} 
-            ref={ref} step={step} 
-            addTitle={addTitle} 
-            styleBlock={style.block} continueTestHandler={continueTestHandler} deleteSavedTest={deleteSavedTest} />
-          ) : (
             <>
               {tests.length
                 ? tests.map((test, i) => (
@@ -380,7 +382,7 @@ const Create = () => {
               </Button>
               {tests.length ? <Upload setPressed={setPressed} pressed={pressed} getData={getData}  setError={setError} successfulCreation={successfulCreation} setSuccessfulCreation={setSuccessfulCreation} list={testData} />:""}
               {tests.length ? 
-                <Button onClick={saveTest} fullWidth style={{marginBottom:"4px"}}  variant="contained" color="secondary">Сохранить тест</Button>
+                <Button onClick={saveTest} fullWidth style={{marginBottom:"4px"}}  variant="contained" color="primary">Сохранить тест</Button>
               :""}
               {tests.length ? <Button variant="contained" onClick={()=>setPressed(true)}  fullWidth style={{background:"lime", }}>Создать тест</Button>:""}
               {tests.length ? <div><ReCAPTCHA sitekey="6LdCqbYbAAAAAKPcfcFUHPrEfBchHSOJlBaG3U0-" onExpired={expiredRecaptcha} onChange={recaptcha}/></div>:""}
@@ -390,10 +392,9 @@ const Create = () => {
               {error ? <Alert variant="error">{error}</Alert>:""}
               </Paper>
             </>
-          )}
         </Grid>
       </Grid>
-    </div>
+      } </>    
   )
 }
 

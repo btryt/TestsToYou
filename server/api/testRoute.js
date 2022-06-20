@@ -72,7 +72,7 @@ router.get("/test/find/:url",async(req,res)=>{
   let url = req.params.url
   try{
     const test = await db.query("SELECT tests,title,id FROM tests WHERE url = $1",[url])
-    
+    const userLogin = await db.query("SELECT login FROM users WHERE EXISTS (SELECT id FROM tests WHERE userid = users.id AND url = $1 )",[url])
     if(test.rows.length){
       let rows = test.rows[0]
       forEach(rows.tests,(val)=>{
@@ -80,7 +80,7 @@ router.get("/test/find/:url",async(req,res)=>{
            delete vr.correct
         })
       })
-      return res.send({rows,title:rows.title,testId:rows.id})
+      return res.send({rows,title:rows.title,testId:rows.id,userLogin:userLogin.rows[0].login})
     }
     res.status(404).send([])
   }
@@ -95,7 +95,8 @@ router.get("/find/test",async (req,res)=>{
   const c = Number(req.query.c) === 0 ? 1 : Number(req.query.c)
   try{
     let count = await db.query("SELECT COUNT(id) FROM tests WHERE title ~* $1",[`(${title})`])
-    let test = await db.query("SELECT url,title,id,link_access FROM tests WHERE title ~* $1 LIMIT $2",[`(${title})`, 5 * Number(c)])
+    // let test = await db.query("SELECT url,title,id,link_access FROM tests WHERE title ~* $1 LIMIT $2",[`(${title})`, 5 * Number(c)])
+    let test = await db.query("SELECT login,url,title, tests.id,link_access FROM users INNER JOIN tests ON  tests.userid = users.id AND title ~* $1 LIMIT $2",[`(${title})`, 5 * Number(c)])
     let rows = []
     test.rows.forEach(row=>{
       if(!row.link_access){
@@ -255,13 +256,14 @@ router.get("/test/results",authMiddleware,async(req,res)=>{
   try{
     const finishedTests = await db.query("SELECT name,percentages,result,url,id,testid,to_char(finish_time,'YYYY-MM-DD HH24:MI:SS') AS finish_time FROM finish_test WHERE testid = (SELECT id FROM tests WHERE userid = $1 AND id = $2)",[req.session.userId,id])
     const averageRating = await db.query("SELECT rating FROM tests WHERE id = $1",[id])
+    const usersRating = await db.query("SELECT login, users.id, rating FROM users INNER JOIN rating ON rating.userid = users.id AND rating.testid = $1 ",[id])
     let averagePercentage = 0
     const numOfCompletedTest = finishedTests.rows.length
     forEach(finishedTests.rows,el=>{
       averagePercentage += parseInt(el.percentages)
     })
     let percent = averagePercentage !== 0 ? (averagePercentage / numOfCompletedTest).toFixed(1) : 0
-    res.send({rows:finishedTests.rows,averagePercentage: percent,averageRating:averageRating.rows[0].rating,numOfCompletedTest})
+    res.send({rows:finishedTests.rows,averagePercentage: percent,averageRating:averageRating.rows[0].rating,numOfCompletedTest,usersRating:usersRating.rows})
   }
   catch(e){
     console.log(e)
