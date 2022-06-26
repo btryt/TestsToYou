@@ -135,6 +135,12 @@ router.post("/test/delete",authMiddleware,async (req,res)=>{
       fs.rm(path.join(__dirname,`../uploads/${req.body[i]}`),{recursive:true},(err)=>{
         if(err) console.log(err)
       })
+      let rating = await db.query("SELECT id FROM rating WHERE testid = $1",[req.body[i]])
+      if(rating.rows.length){
+        for(let j =0; j < rating.rows.length;j++){
+        await db.query("DELETE FROM rating WHERE id = $1",[rating.rows[j].id])
+        }
+       }
       if(id.rows.length){
         await db.query("DELETE FROM finish_test WHERE testid = $1",[id.rows[0].testid])
       }
