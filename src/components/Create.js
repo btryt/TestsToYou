@@ -227,14 +227,13 @@ const Create = () => {
       .then(async(res)=>{
         if(res.ok){
           setSuccessfulCreation(true)     
-          setPressed(false)
         }
         else{
           setError("Произошла неизвестна ошибка при создании теста")
-          setPressed(false)
         }
-      })
+      }).catch(()=> setError("Произошла неизвестна ошибка при создании теста") )
     }
+    setPressed(false)
   },[testTitle,showCorrect,characterLimitExceededTitle.length,characterLimitExceededVariant.length,linkAccess,validRecaptcha])
 
   const getData = useCallback((data)=>{

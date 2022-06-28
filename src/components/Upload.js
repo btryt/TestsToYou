@@ -81,7 +81,7 @@ const Upload = ({list,successfulCreation,setError,setPressed,setSuccessfulCreati
                 setSuccessfulCreation(false)
                 setError(errorMessage)
             }
-        }
+        } else setPressed(false)
         }
         catch(e){
             setPressed(false)
