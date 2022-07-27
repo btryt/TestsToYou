@@ -95,7 +95,6 @@ router.get("/find/test",async (req,res)=>{
   const c = Number(req.query.c) === 0 ? 1 : Number(req.query.c)
   try{
     let count = await db.query("SELECT COUNT(id) FROM tests WHERE title ~* $1",[`(${title})`])
-    // let test = await db.query("SELECT url,title,id,link_access FROM tests WHERE title ~* $1 LIMIT $2",[`(${title})`, 5 * Number(c)])
     let test = await db.query("SELECT login,url,title, tests.id,link_access FROM users INNER JOIN tests ON  tests.userid = users.id AND title ~* $1 LIMIT $2",[`(${title})`, 5 * Number(c)])
     let rows = []
     test.rows.forEach(row=>{
@@ -189,7 +188,7 @@ router.post("/test/finish",validate(finishSchema),async (req,res)=>{
     const test = await db.query("SELECT tests,show_correct_answer FROM tests WHERE id = $1",[body.testId])
     const url = getHash(7)
     if(test.rows.length){
-        forEach(test.rows[0].tests,(val)=>{
+        forEach(test.rows[0].tests,(val,i)=>{
           if(!uniqueTestId.has(val.id)){
             idNotFound = true
           }
@@ -199,20 +198,57 @@ router.post("/test/finish",validate(finishSchema),async (req,res)=>{
             }
           }
             forEach(val.variants,(vr)=>{
-                if(body.answers.some(b=> b.testId === val.id && b.variants.some(v=>v.id === vr.id) && vr.correct)){
-                    count++ 
-                }
-                if(vr.correct){
-                  total++
-                }
                 if(uniqueVariantId.has(vr.id)){
                   uniqueVariantId.delete(vr.id)
                 }
             })
         })
+
+        forEach(body.answers,(val)=>{
+          let allCorrect = true
+          let index = test.rows[0].tests.findIndex(t=> t.id === val.testId)
+            forEach(val.variants,(vr)=>{
+              if(index !== -1){
+                  let variantIndex = test.rows[0].tests[index].variants.some(v=> v.id === vr.id && !v.correct)
+                  
+                  if(test.rows[0].tests[index].multiple){
+                    if(variantIndex){ 
+                      allCorrect = false 
+                      return
+                    }
+                    else {
+                      if(val.variants.length > 1){
+                        let filetered = test.rows[0].tests[index].variants.filter(v=> v.correct)
+                        let tempArray = [...filetered]
+                        filetered.forEach(v=>{
+                          if(val.variants.some(vl=> vl.id === v.id)) tempArray.pop()
+                        })
+                        if(allCorrect && tempArray.length === 0){
+                          count++
+                        }
+                        allCorrect = false
+                        return
+                      }
+              
+                      count++
+                    }
+                  }
+                  else {
+                    if(test.rows[0].tests[index].variants.some(v=> v.id === vr.id && v.correct)){
+                      
+                      count++
+                    }
+                  }
+              }
+            })
+        })
+
+
+
       if(idNotFound || uniqueVariantId.size !== 0 || modifiedData){
         return res.status(400).send({message:"Произошла ошибка или вы пытаетесь модифицировать данные"})
       }
+      total = test.rows[0].tests.length
       const percentages = (count * 100) / total 
       
       await db.query("INSERT INTO finish_test (name,testid,url,result,percentages,answers,finish_time) VALUES ($1,$2,$3,$4,$5,$6::jsonb[],$7)",

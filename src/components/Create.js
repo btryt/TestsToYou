@@ -286,7 +286,6 @@ const Create = () => {
             styleBlock={style.block} continueTestHandler={continueTestHandler} deleteSavedTest={deleteSavedTest} />
       ) 
         :
-
       <Grid
         container
         alignItems="center"
