@@ -9,39 +9,18 @@ const {validate, ValidationError} = require('express-validation');
 const creationSchema = require("../schemes/create")
 const finishSchema = require("../schemes/finish")
 const ratingSchema = require("../schemes/rating")
+const validateDataFinishTest = require("../validations/testFinish")
+const validateDataCreateTest = require("../validations/testCreate")
 const router = Router()
+
 router.post("/test/create",[authMiddleware,validate(creationSchema)],async(req,res)=>{
     const body = req.body
-    const uniqueTestId = new Set()
-    const testsWithCorrectAnswer = new Set()
-    const uniqueVariantId = new Set()
-    const variantsIdArray = []
-    let modifiedData = false
-    forEach(body.tests,(test)=>{
-      uniqueTestId.add(test.id)
 
-      if(!test.multiple){
-        if(test.variants.filter(f=> f.correct).length > 1){
-          modifiedData = true
-        }
-      }
-      if(test.multiple){
-        if(test.variants.filter(f=> f.correct).length < 2){
-          modifiedData = true
-        }
-      }
-      forEach(test.variants,(variant)=>{
-        if(variant.correct){
-          testsWithCorrectAnswer.add(test.id)
-          variantsIdArray.push(variant.id)
-          uniqueVariantId.add(variant.id)
-        }
-      })
-    })
-    if(uniqueTestId.size !== body.tests.length || testsWithCorrectAnswer.size !== body.tests.length || variantsIdArray.length !== uniqueVariantId.size || modifiedData){
+    const result = validateDataCreateTest(body)
+
+    if(!result.ok){
       return res.status(400).send({message:"Произошла ошибка при создании теста или данные были модифицированы"})
     }
-
     try{
         let url = getHash(7) 
         let id = req.session.userId
@@ -156,103 +135,22 @@ router.post("/test/delete",authMiddleware,async (req,res)=>{
 
 router.post("/test/finish",validate(finishSchema),async (req,res)=>{
   const body = req.body
-  const uniqueTestId = new Set()
-  const uniqueVariantId = new Set()
-  const testsWithMultipleAnswers = new Set()
-  const variantsIdArray = []
-  let count = 0
   let total = 0
-  let idNotFound = false
-  let modifiedData = false
-  forEach(body.answers,(answer)=>{
-    uniqueTestId.add(answer.testId)
-
-    if(answer.variants.filter(f=> f.correct).length !== answer.variants.length){
-      modifiedData = true
-    }
-    if(answer.variants.filter(f=> f.correct).length > 1){
-      testsWithMultipleAnswers.add(answer.testId)
-    }
-    forEach(answer.variants,(variant)=>{
-      if(variant.correct){
-        uniqueVariantId.add(variant.id)
-        variantsIdArray.push(variant.id)
-      }
-    })
-  })
-  if(uniqueTestId.size !== body.answers.length || variantsIdArray.length !== uniqueVariantId.size || modifiedData){
-    return res.status(400).send({message:"Произошла ошибка при завершении теста или данные были модифицированы"})
-  }
-
+  
   try{
     const test = await db.query("SELECT tests,show_correct_answer FROM tests WHERE id = $1",[body.testId])
+    let result = validateDataFinishTest(body,test)
     const url = getHash(7)
     if(test.rows.length){
-        forEach(test.rows[0].tests,(val,i)=>{
-          if(!uniqueTestId.has(val.id)){
-            idNotFound = true
-          }
-          if(!val.multiple){
-            if(testsWithMultipleAnswers.has(val.id)){
-               modifiedData = true
-            }
-          }
-            forEach(val.variants,(vr)=>{
-                if(uniqueVariantId.has(vr.id)){
-                  uniqueVariantId.delete(vr.id)
-                }
-            })
-        })
-
-        forEach(body.answers,(val)=>{
-          let allCorrect = true
-          let index = test.rows[0].tests.findIndex(t=> t.id === val.testId)
-            forEach(val.variants,(vr)=>{
-              if(index !== -1){
-                  let variantIndex = test.rows[0].tests[index].variants.some(v=> v.id === vr.id && !v.correct)
-                  
-                  if(test.rows[0].tests[index].multiple){
-                    if(variantIndex){ 
-                      allCorrect = false 
-                      return
-                    }
-                    else {
-                      if(val.variants.length > 1){
-                        let filetered = test.rows[0].tests[index].variants.filter(v=> v.correct)
-                        let tempArray = [...filetered]
-                        filetered.forEach(v=>{
-                          if(val.variants.some(vl=> vl.id === v.id)) tempArray.pop()
-                        })
-                        if(allCorrect && tempArray.length === 0){
-                          count++
-                        }
-                        allCorrect = false
-                        return
-                      }
-              
-                      count++
-                    }
-                  }
-                  else {
-                    if(test.rows[0].tests[index].variants.some(v=> v.id === vr.id && v.correct)){
-                      
-                      count++
-                    }
-                  }
-              }
-            })
-        })
-
-
-
-      if(idNotFound || uniqueVariantId.size !== 0 || modifiedData){
+      
+      if(!result.ok){
         return res.status(400).send({message:"Произошла ошибка или вы пытаетесь модифицировать данные"})
       }
       total = test.rows[0].tests.length
-      const percentages = (count * 100) / total 
+      const percentages = (result.data.count * 100) / total 
       
       await db.query("INSERT INTO finish_test (name,testid,url,result,percentages,answers,finish_time) VALUES ($1,$2,$3,$4,$5,$6::jsonb[],$7)",
-      [body.name,body.testId,url,`${count}/${total}`,percentages.toFixed(1),[...body.answers],
+      [body.name,body.testId,url,`${result.data.count}/${total}`,percentages.toFixed(1),[...body.answers],
       `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`])
 
       res.send({url})
