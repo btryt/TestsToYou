@@ -38,7 +38,7 @@ const Test = () => {
   useEffect(()=>{
       let mounted = true
       setLoaded(false)
-      fetch(`/api/test/find/${params.url}`)
+      fetch(`/api/test/t/${params.url}`)
       .then(async res=>{
         if(mounted){
           if(res.ok){

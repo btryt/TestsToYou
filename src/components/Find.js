@@ -20,7 +20,7 @@ const Find = () =>{
             setLoading(true)
             setPagesList(new Set())
             setList([])
-            fetch(`/api/find/test?title=${e.target.value.trim()}&c=${0}`)
+            fetch(`/api/test/find?title=${e.target.value.trim()}&c=${0}`)
             .then(async res =>{
                 let response = await res.json()
                 if(res.ok) {
