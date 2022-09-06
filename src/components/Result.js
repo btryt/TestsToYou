@@ -12,7 +12,7 @@ import {
 } from "@material-ui/core"
 import React, { useEffect, useState } from "react"
 import { useNavigate,useParams } from "react-router-dom"
-import colorCheck from "../func/colorCheck"
+import colorCheck from "../utils/colorCheck"
 
 const Result = () => {
   const location = useNavigate()

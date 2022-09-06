@@ -20,10 +20,10 @@ const db = require("../db")
         if(err) console.log(err)
       })
       if(err.code === "WRONG_TYPE_FILE"){
-        res.status(400).send(err.message)
+        res.status(400).send({message:err.message})
       }
       else if(err.code === "LIMIT_FILE_SIZE"){
-        res.status(400).send("Размер файла должен быть не более 2 МБ")
+        res.status(400).send({message:"Размер файла должен быть не более 2 МБ"})
       }
     }
   })

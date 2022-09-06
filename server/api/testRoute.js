@@ -13,17 +13,17 @@ const getTest = require("./testRoutes/getTest")
 const testList = require("./testRoutes/testList")
 
 
-router.use("/test", addRating)
-router.use("/test", createTest)
-router.use("/test", deleteResult)
-router.use("/test", deleteTest)
-router.use("/test", find)
-router.use("/test", finishTest)
-router.use("/test", getRating)
-router.use("/test", getResult)
-router.use("/test", getResults)
-router.use("/test", getTest)
-router.use("/test", testList)
+router.use(addRating)
+router.use(createTest)
+router.use(deleteResult)
+router.use(deleteTest)
+router.use(find)
+router.use(finishTest)
+router.use(getRating)
+router.use(getResult)
+router.use(getResults)
+router.use(getTest)
+router.use(testList)
 
 
 module.exports = router

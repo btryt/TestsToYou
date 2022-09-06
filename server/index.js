@@ -16,6 +16,6 @@ app.use(session({
     }
 }))
 app.use("/api",authRoute)
-app.use("/api",testRoute)
+app.use("/api/test",testRoute)
 app.use("/api",upload)
 app.listen(4000)

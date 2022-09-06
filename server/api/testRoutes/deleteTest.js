@@ -6,11 +6,11 @@ const path = require("path")
 const router = Router()
 
 router.post("/delete",authMiddleware,async (req,res)=>{
+    let userID = req.session.userId
     for(let i =0; i < req.body.length;i++){
       try{
-        let userID = req.session.userId
         await db.query("DELETE FROM tests WHERE id = $1 AND userid = $2",[req.body[i],userID])
-        fs.rm(path.join(__dirname,`../uploads/${req.body[i]}`),{recursive:true},(err)=>{
+        fs.rm(path.join(__dirname,`../../uploads/${req.body[i]}`),{recursive:true},(err)=>{
           if(err) console.log(err)
         })
       }catch(e){

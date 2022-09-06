@@ -18,8 +18,8 @@ import {
 import Rating from './Rating'
 import Alert from "./Alert"
 import { useNavigate,useParams } from "react-router-dom"
-import funcWrapper from "../func/funcWrapper";
-import isCorrect from "../func/isCorrect";
+import funcWrapper from "../utils/funcWrapper";
+import isCorrect from "../utils/isCorrect";
 const Test = () => {
   const location = useNavigate()
   const params = useParams()

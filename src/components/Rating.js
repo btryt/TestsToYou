@@ -3,7 +3,7 @@ import Context from './context/context'
 import hollow_star from "../assets/hollow_star_24.png"
 import star from '../assets/star_24.png'
 import half_star from  "../assets/half_star_24.png"
-import funcWrapper from '../func/funcWrapper'
+import funcWrapper from '../utils/funcWrapper'
 const Rating = ({style,testId,setErrorMessage}) => {
   const context = useContext(Context)
   const [stars, setStars] = useState([

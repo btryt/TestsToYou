@@ -21,7 +21,7 @@ router.post("/create",[authMiddleware,validate(creationSchema)],async(req,res)=>
         let url = getHash(7) 
         let id = req.session.userId
         let testId = await db.query("INSERT INTO tests (title,userid,url,show_correct_answer,tests,link_access) VALUES ($1,$2,$3,$4::boolean,$5::jsonb[],$6::boolean) RETURNING id",
-        [body.testTitle,id,url,body.showCorrect,[...body.tests],body.linkAccess])
+        [body.testTitle,id,url,body.showCorrect,body.tests,body.linkAccess])
         if(testId.rows.length){
           await fs.promises.mkdir(path.join(__dirname,`../../uploads/${testId.rows[0].id}`))
 

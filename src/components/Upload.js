@@ -1,172 +1,74 @@
-import React,{useCallback,useEffect,useState,useMemo} from 'react'
-import { useNavigate } from 'react-router-dom'
+import React,{useCallback,useState,useMemo} from 'react'
 import { Modal,Paper,Button, Container } from '@material-ui/core'
 import uploadImg from '../assets/upload-24.png'
 import uploadedImg from '../assets/uploaded-24.png'
-const Upload = ({list,successfulCreation,setError,setPressed,setSuccessfulCreation,pressed,getData}) =>{
-    const navigate = useNavigate()
+const Upload = ({tests,setTests,setFormData}) =>{
     const [open,setOpen] = useState(false)
-    const [imgList,setimgList] = useState([])
     const formData = useMemo(()=> new FormData(),[])
-
-    const filterData = useCallback(()=>{
-        let array = JSON.parse(JSON.stringify(imgList))
-        let testData = JSON.parse(JSON.stringify(list))
-        
-        if(imgList.length){
-
-            list.forEach((x,index,thisArr)=>{
-                array.forEach((a,i)=>{
-                    if(!thisArr.find(t=> t.id === a.id)){
-                        if(!formData.has(array[i].id)){
-                            formData.delete(array[i].id)
-                        }
-                        array.splice(i,1)
-                    }else{
-                     a.variants.forEach((v,idx)=>{
-                         if(!thisArr.find(t=> t.id === a.id)?.variants.find(vr=> vr.id === v)){
-                             if(!formData.has(`${array[i]}-${array[i].variants[idx]}`)){
-                                 formData.delete(`${array[i]}-${array[i].variants[idx]}`)
-                             }
-                             array[i].variants.splice(idx,1)
-                         }
-                     })  
-                    }
-                })
-            })
-
-            testData.forEach((v,i)=>{
-                if(array.find(a=> a.id === v.id)?.img){
-                    testData[i].img = true
-                }
-                else testData[i].img = false
-
-                testData[i].variants.forEach((vr,idx)=>{
-                    if(array.find(a=> a.id === v.id)?.variants.find(variant=> variant === vr.id)){
-                        testData[i].variants[idx].img = true
-                    }
-                    else testData[i].variants[idx].img = false
-                })
-            })
-            
-            for(let val of formData.keys()){
-                if(!val.includes("-")){
-                    if(!list.find(l=>l.id == val)){
-                        formData.delete(val)
-                    }
-                }
-                else{
-                    let id = val.split("-")
-                    if(!list.find(l=>l.id == id[0])){
-                        formData.delete(val)
-                    }
-                    else if(!list.find(l=> l.id == id[0])?.variants.find(v=> v.id == id[1])){
-                        formData.delete(`${id[0]}-${id[1]}`)
-                    }
-                }
-            }
-            return testData
-        }
-    },[formData,imgList,list])
-    
-    const send = useCallback(async()=>{
-        try{
-            if(imgList.length){
-            let response = await fetch("/api/upload",{method:"POST",body:formData})
-            if(response.ok){
-                navigate('../test/list',{replace:true})
-            }else {
-                let errorMessage = await response.text()
-                setPressed(false)
-                setSuccessfulCreation(false)
-                setError(errorMessage)
-            }
-        } else setPressed(false)
-        }
-        catch(e){
-            setPressed(false)
-            setError(e)
-        }
-    },[formData,setError,setPressed,imgList,setSuccessfulCreation,navigate])
-
 
     const upload = useCallback(async(e,id,variantId)=>{   
         let extension = e.target.files[0]?.name.split(".").pop()
         if(!extension) return
+        let testIndex = tests.findIndex(a=> a.id === id)
         if(variantId !== null){
             if(formData.has(`${id}-${variantId}`)){
                 formData.delete(`${id}-${variantId}`)
             }
             formData.append(`${id}-${variantId}`,e.target.files[0],`${id}-${variantId}.${extension}`)
+            
+            if(testIndex !== -1 && tests.some(l=> l.id === id && l.variants.some(v=> v.id === variantId))){
+                let arr = [...tests]
+                let variantIndex = arr[testIndex].variants.findIndex(v=> v.id === variantId)
+                if(variantIndex !== -1){
+                    arr[testIndex].variants[variantIndex].img = true
+                    
+                    setTests(arr)
+                }
+            }
         }
         else{ 
             if(formData.has(`${id}`)){
                 formData.delete(`${id}`)
             }
             formData.append(`${id}`,e.target.files[0],`${id}.${extension}`)
-        }
-
-        if(imgList.some(obj=> obj.id === id)){
-            let array = [...imgList] 
-            let index = array.findIndex(val => val.id === id)
-            if(variantId === null) array[index].img = true
-
-            if(variantId !== null && !array[index].variants.some(el=> el === variantId)){
-               array[index].variants.push(variantId)
+            
+            if(testIndex !== -1 && tests.some(l=> l.id === id)){
+                let arr = [...tests]
+                arr[testIndex].img = true
+                setTests(arr)
             }
-            setimgList(array)
         }
-        else{
-            if(variantId !== null){
-                setimgList(prev=> [...prev,{id:id,variants:[variantId],img:false}])
-            }
-            else setimgList(prev=> [...prev,{id:id,variants:[],img:true}])
-        }
-
-    },[imgList,formData])
+        setFormData(formData)
+    },[formData,setFormData,tests,setTests])
 
     const removeData = useCallback((id,variantId)=>{
-        let array = JSON.parse(JSON.stringify(imgList))
+        let array = [...tests]
+        let testIndex = tests.findIndex(l=> l.id === id)
         if(variantId !== null){
             if(formData.has(`${id}-${variantId}`)){
                 formData.delete(`${id}-${variantId}`)
             }
-            let index = imgList.findIndex(l=> l.id === id)
-            if(index !== -1) {
-                let variantIndex = imgList[index].variants.findIndex(f=> f === variantId)
-                array[index].variants.splice(variantIndex,1)
+            if(testIndex !== -1) {
+                let variantIndex = tests[testIndex].variants.findIndex(v=> v.id === variantId)
+                if(variantIndex !== -1){
+                    array[testIndex].variants[variantIndex].img = false
+                    setTests(array)
+                }
             }
         }
         else{
             if(formData.has(`${id}`)){
                 formData.delete(`${id}`)
             }
-            let index = imgList.findIndex(l=> l.id === id)
+            let index = tests.findIndex(l=> l.id === id)
             if(index !== -1) {
-                if(!array[index].variants.length){
-                    array.splice(index,1)
-                }
-                else array[index].img = false
+                array[index].img = false
+                setTests(array)
             }
         }
-        setimgList(array)
-    },[imgList,formData])
+        setFormData(formData)
+    },[tests,setTests,formData,setFormData])
 
-    useEffect(()=>{
-        if(successfulCreation && imgList.length ){
-            send()
-        }
-        else if (successfulCreation && !imgList.length){
-            navigate('../test/list',{replace:true})
-        }
-    },[send,successfulCreation,filterData,imgList.length,navigate])
-
-    useEffect(()=>{
-        if(pressed){
-            let flData = filterData()
-            getData(flData)
-        }
-    },[pressed,getData,filterData])
     const openModal = useCallback(()=>{
         setOpen(true)
     },[])
@@ -181,27 +83,27 @@ const Upload = ({list,successfulCreation,setError,setPressed,setSuccessfulCreati
         <Container maxWidth="md">
             <Paper className='upload__modal' style={{maxHeight:"400px",overflowY:"auto",padding:"8px"}}>
                 <Container >
-                {list.map((l,i)=>(
-                <div key={l.id} style={{borderBottom:"1px solid black",margin:"2px"}}>
+                {tests.map((test,testIndex)=>(
+                <div key={test.id} style={{borderBottom:"1px solid black",margin:"2px"}}>
                    <div style={{display:"flex",justifyContent:"space-between"}}>
-                       <span style={{wordBreak:"break-all"}}>№ {i+1} {l.title}</span>
-                     <div style={{display: !l.title.length ? "none" : "flex", alignItems:"center"}}>
-                           <label htmlFor={l.id + 1}><img style={{cursor:"pointer"}} src={imgList.find(ls=> ls.id === l.id)?.img ? uploadedImg : uploadImg} alt="upload"/></label>
-                           <input style={{display:"none"}} onChange={(e)=>upload(e,l.id,null)} id={l.id +1} type='file' />
+                       <span style={{wordBreak:"break-all"}}>№ {testIndex+1} {test.title}</span>
+                     <div style={{display: !test.title.trim().length ? "none" : "flex", alignItems:"center"}}>
+                           <label htmlFor={test.id + 1}><img style={{cursor:"pointer"}} src={test.img ? uploadedImg : uploadImg} alt="upload"/></label>
+                           <input style={{display:"none"}} onChange={(e)=>upload(e,test.id,null)} id={test.id +1} type='file' />
                            
-                           {imgList.find(ls=> ls.id === l.id)?.img && <span onClick={()=> removeData(l.id,null)} style={{marginLeft:"12px",color:"red", cursor:"pointer"}}>X</span>}
+                           {test.img && <span onClick={()=> removeData(test.id,null)} style={{marginLeft:"12px",color:"red", cursor:"pointer"}}>X</span>}
                        </div>
                    </div> 
                    <ul>
-                       {l.variants.map((v)=>(
-                           <li key={v.id}>
-                               <div style={{display:"flex",justifyContent:"space-between"}}>
-                                    <span style={{wordBreak:"break-all", color: v.correct && "lime"}}>{v.title}</span>
-                                     <div style={{display: !l.title.length ? "none" : "flex", alignItems:"center"}}>
-                                        <label htmlFor={v.id - 1}><img style={{cursor:"pointer"}} src={imgList.find(ls=> ls.id === l.id)?.variants.includes(v.id) ? uploadedImg : uploadImg} alt="upload"/></label>
-                                        <input style={{display:"none"}} onChange={(e)=>upload(e,l.id,v.id)} id={v.id -1} type='file' />
+                       {test.variants.map((variant,vIndex)=>(
+                           <li key={variant.id}>
+                               <div style={{display:!variant.title.trim().length ? "none":"flex",justifyContent:"space-between"}}>
+                                    <span style={{wordBreak:"break-all", color: variant.correct && "lime"}}>{variant.title}</span>
+                                     <div style={{display: !test.title.length ? "none" : "flex", alignItems:"center"}}>
+                                        <label htmlFor={variant.id - 1}><img style={{cursor:"pointer"}} src={test.variants[vIndex].img ? uploadedImg : uploadImg} alt="upload"/></label>
+                                        <input style={{display:"none"}} onChange={(e)=>upload(e,test.id,variant.id)} id={variant.id -1} type='file' />
 
-                                        {imgList.find(ls=> ls.id === l.id)?.variants.includes(v.id) && <span onClick={()=> removeData(l.id,v.id)} style={{marginLeft:"12px",color:"red", cursor:"pointer"}}>X</span>}
+                                        {test.variants[vIndex].img && <span onClick={()=> removeData(test.id,variant.id)} style={{marginLeft:"12px",color:"red", cursor:"pointer"}}>X</span>}
                                     </div>
                                </div>
                            </li>
