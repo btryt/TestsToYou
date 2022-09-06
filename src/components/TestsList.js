@@ -26,48 +26,47 @@ function TestList() {
   const [loading,setLoading] =useState(false)
   const [rows,setRows] = useState([])
   const [selected, setSelected] = React.useState([]);
-  const [deleted,setDeleted] = useState(0)
   const [columns,setColumns] = useState([{field:"title",headerName:"Название",width:250,editable: false},
     {field:"url",headerName:"Ссылка на тест",editable:false,width:260,renderCell:(params)=><Link style={{color:"white"}}  to={`../../test/${params.value}`}>http://localhost/test/{params.value}</Link>},
     {field:"Реузультат",headerName:"",width:180,editable: false, renderCell: (params)=> <Button style={{color:"white"}} onClick={()=>getResults(params.id)} variant="outlined" color="default">Информация</Button>}])
 
 
-  useEffect(()=>{
-    let isMounted = true
+  const getTestsList = () =>{
     setLoading(true)
     fetch("/api/test/list",{method:"GET"})
     .then(async res =>{
       let tests = await res.json()
-      if(isMounted){
       setRows([...tests])
       setLoading(false)
-      }
     })
-      return () => isMounted = false
-  },[deleted])
+  }
+
+  useEffect(()=>{
+    getTestsList()
+  },[])
   const getResults = (id)=>{
     setOpen(true)
     setTestId(id)
   }
 
-  const onSelected = useCallback((array)=>{
+  const onSelected = (array)=>{
     if(array.length){
         setSelected(array)
     }
     else {
       setSelected([])
     }
-},[])
+}
+
 const deleteTest = useCallback(() =>{
   fetch('/api/test/delete',{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(selected)})
   .then(async res=>{
     if(res.ok){
-      let result = await res.text()
-      setDeleted(result)
+      getTestsList()
       setSelected([])
     }
   })
-},[selected,setDeleted,setSelected])
+},[selected,setSelected])
 
   return (
     <Paper className={classes.root} >
@@ -77,4 +76,4 @@ const deleteTest = useCallback(() =>{
     </Paper>
   );
 }
-export default React.memo(TestList)
+export default TestList
