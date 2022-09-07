@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState,useEffect } from 'react'
+import React, {  useRef, useState,useEffect } from 'react'
 import ReCAPTCHA from "react-google-recaptcha";
 
 import {
@@ -12,7 +12,7 @@ import {
   } from "@material-ui/core"
   import { makeStyles } from "@material-ui/core/styles"
 import Alert from './Alert'
-import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth';
   
   const useStyles = makeStyles((theme) => ({
     input:{
@@ -35,30 +35,14 @@ import { useNavigate } from 'react-router-dom'
       width:"100%"
     }
   }))
-const Login = ({setLogin}) =>{
-    const location = useNavigate()
+const Login = () =>{
+    const {login} = useAuth()
     const [validRecaptcha,setValidRecaptcha] = useState(false)
     const [errorMessage,setErrorMessage] = useState('')
     const styles = useStyles()
     const loginEmail = useRef()
     const loginPassword = useRef()
 
-
-    const login = useCallback(()=>{
-      setErrorMessage("")
-      if(loginEmail.current.value.trim() && loginPassword.current.value.trim()){
-        fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({email:loginEmail.current.value.trim(),password:loginPassword.current.value.trim()})})
-        .then(async res =>{
-          let response = await res.json()
-          if(res.ok){
-            setLogin(response)
-            location("/profile/test/list",{replace:true})
-          }
-          else setErrorMessage(response.message)
-        })
-      } 
-    },[setLogin,location])
 
     useEffect(()=>{
       if(errorMessage){
@@ -82,7 +66,7 @@ const Login = ({setLogin}) =>{
               <FormGroup className={styles.form} >
                 <TextField inputRef={loginEmail} type="email" className={styles.input}variant="outlined" autoFocus label="Почта"/>
                 <TextField inputRef={loginPassword} type="password" className={styles.input} variant="outlined" label="Пароль"/>
-                <Button onClick={login} className={styles.button} variant="contained" color="primary">
+                <Button onClick={() => login({setErrorMessage,loginEmail,loginPassword})} className={styles.button} variant="contained" color="primary">
                     Войти
                 </Button>
               </FormGroup>

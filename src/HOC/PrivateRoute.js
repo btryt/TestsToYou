@@ -1,9 +1,8 @@
-import {useContext} from 'react'
-import Context from '../components/context/context'
 import { Navigate } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 const PrivateRoute = ({children}) =>{
-    const context = useContext(Context)
-    if(!context.auth){
+    const {isAuth} = useAuth()
+    if(!isAuth){
         return <Navigate to="/login"/>
     }
     return children

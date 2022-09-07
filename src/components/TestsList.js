@@ -2,10 +2,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {  makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import { DataGrid } from '@material-ui/data-grid';
-import {Link} from 'react-router-dom'
+import {Link, useNavigate} from 'react-router-dom'
 import Results from './Results';
 import NoRowsOverlay from './NoRowsOverlay'
 import { Button } from '@material-ui/core';
+import { useAuth } from '../hooks/useAuth';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -20,7 +21,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function TestList() {
+  const {setIsAuth} = useAuth()
   const classes = useStyles();
+  const navigate = useNavigate()
   const [open,setOpen] =useState(false)
   const [testId,setTestId] = useState(null)
   const [loading,setLoading] =useState(false)
@@ -35,6 +38,11 @@ function TestList() {
     setLoading(true)
     fetch("/api/test/list",{method:"GET"})
     .then(async res =>{
+      if(!res.ok){
+        setIsAuth(false)
+        navigate("/login",{replace:true})
+        return  
+      }
       let tests = await res.json()
       setRows([...tests])
       setLoading(false)

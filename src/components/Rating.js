@@ -1,11 +1,11 @@
-import React, { useState,useCallback,useEffect,useContext } from "react"
-import Context from './context/context'
+import React, { useState,useCallback,useEffect } from "react"
 import hollow_star from "../assets/hollow_star_24.png"
 import star from '../assets/star_24.png'
 import half_star from  "../assets/half_star_24.png"
 import funcWrapper from '../utils/funcWrapper'
+import { useAuth } from "../hooks/useAuth"
 const Rating = ({style,testId,setErrorMessage}) => {
-  const context = useContext(Context)
+  const {isAuth} = useAuth()
   const [stars, setStars] = useState([
     { id: 0, selected: false },
     { id: 1, selected: false },
@@ -91,7 +91,7 @@ const Rating = ({style,testId,setErrorMessage}) => {
   },[stars])
 
   const selectElement = useCallback((id) =>{
-    if(context.auth){
+    if(isAuth){
     const arr = [...stars]
     arr.map((s)=>{
         if(s.id <= id){
@@ -104,7 +104,7 @@ const Rating = ({style,testId,setErrorMessage}) => {
     setStars(arr)
     send(id)
   }
-  },[stars,send,context.auth])
+  },[stars,send,isAuth])
   const returnStars = useCallback(()=>{
     let arr = [...stars]
     arr.map((s)=>{

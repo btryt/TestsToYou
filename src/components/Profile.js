@@ -2,6 +2,7 @@ import React, { useState,useCallback, useEffect } from "react"
 import { Container, Paper, Grid, Tabs,Tab } from "@material-ui/core"
 import { Outlet,useNavigate,useLocation } from "react-router-dom"
 import { makeStyles } from "@material-ui/core/styles"
+import { useAuth } from "../hooks/useAuth"
 const useStyles = makeStyles(theme =>({
     tabs:{
         flexGrow: 1,

@@ -1,6 +1,5 @@
-import React, { useContext, useCallback } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import Context from "./context/context"
+import React, { useCallback } from "react"
+import { Link } from "react-router-dom"
 import {
   AppBar,
   Button,
@@ -16,6 +15,7 @@ import {
   Divider,
 } from "@material-ui/core"
 import { makeStyles } from "@material-ui/core/styles"
+import { useAuth } from "../hooks/useAuth"
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -56,12 +56,11 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const Header = () => {
+  const {logOut,isAuth,loaded} = useAuth()
   const styles = useStyles()
-  const location = useNavigate()
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [open, setOpen] = React.useState(false)
 
-  const context = useContext(Context)
 
   const handleClick = useCallback((event) => {
     setAnchorEl(event.currentTarget)
@@ -76,17 +75,6 @@ const Header = () => {
       setAnchorEl(null)
       setOpen(op)
   },[])
-  const logOut = useCallback(
-    (e) => {
-      e.preventDefault()
-      if (context.auth)
-        fetch("/api/logout", { method: "POST" }).then(() => {
-          location("/login", { replace: true })
-          context.setAuth(false)
-        })
-    },
-    [context, location]
-  )
   return (
     <>
       <AppBar
@@ -99,7 +87,7 @@ const Header = () => {
             <Typography variant="h6" className={styles.title}>
               Test<span style={{ color: "lime" }}>To</span>You
             </Typography>
-            {context.loaded && !context.auth ? (
+            {loaded && !isAuth ? (
               <>
                 <Box className={styles.linkList}>
                   <Link style={{ color: "white" }} to="/login">
@@ -128,7 +116,7 @@ const Header = () => {
                       <Link style={{ color: "white" }} className="menu-link"  to="/find" > Поиск</Link>
                       </MenuItem>
                       <MenuItem onClick={handleClose}>
-                        <a style={{ color: "white" }} className="menu-link" onClick={logOut}href="/#" > Выйти  </a>
+                        <a style={{ color: "white" }} className="menu-link" onClick={(e)=>logOut(e)}href="/#" > Выйти  </a>
                       </MenuItem>
                     </Menu> 
                   </Box>
@@ -141,7 +129,7 @@ const Header = () => {
                   }
                   <Box className={styles.smMenu}>
                   <Drawer anchor="top" open={open} onClose={()=>toggleHandler(false)}>
-                    {(!context.auth ? [
+                    {(!isAuth ? [
                       { text: "Регистрация", link: "/registration" },
                       { text: "Войти", link: "/login" },
                       { text: "Поиск", link: "/find" },
