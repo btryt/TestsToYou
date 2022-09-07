@@ -1,9 +1,8 @@
-import React,{useCallback,useState,useMemo, useEffect, useRef} from 'react'
+import React,{useCallback,useState, useEffect} from 'react'
 import { Modal,Paper,Button, Container } from '@material-ui/core'
 import defaultImg from '../assets/upload-24.png'
-const Upload = ({tests,setTests,setFormData}) =>{
+const Upload = ({tests,setTests,formData}) =>{
     const [open,setOpen] = useState(false)
-    const formData = useMemo(()=> new FormData(),[])
     const [ref,setRef] = useState(null)
 
     const mountRef = useCallback((node)=>{
@@ -16,7 +15,7 @@ const Upload = ({tests,setTests,setFormData}) =>{
                 const img = formData.get(key) 
                 const output = ref.querySelector(`#id${key}`)
                 output.src = URL.createObjectURL(img)
-            }
+         }
         }
     },[formData,ref])
 
@@ -27,7 +26,7 @@ const Upload = ({tests,setTests,setFormData}) =>{
     const upload = useCallback(async(e,id,variantId)=>{   
         const whiteList = ["jpg","jpeg","pjpeg","gif","png"]
         let extension = e.target.files[0]?.name.split(".").pop()
-        
+
         if(!extension) return
         if(!whiteList.includes(extension)) return
 
@@ -62,9 +61,8 @@ const Upload = ({tests,setTests,setFormData}) =>{
                 setTests(arr)
             }
         }
-        setFormData(formData)
         displayUploadedImg()
-    },[formData,setFormData,tests,setTests,displayUploadedImg])
+    },[formData,tests,setTests,displayUploadedImg])
 
     const removeData = useCallback((id,variantId)=>{
         let array = [...tests]
@@ -98,8 +96,7 @@ const Upload = ({tests,setTests,setFormData}) =>{
                 output.src = defaultImg
             }
         }
-        setFormData(formData)
-    },[tests,setTests,formData,setFormData,ref])
+    },[tests,setTests,formData,ref])
 
     const openModal = ()=>{
         setOpen(true)

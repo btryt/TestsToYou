@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback, useEffect } from "react"
+import React, { useRef, useState, useCallback, useEffect, useMemo } from "react"
 import debounce from 'lodash.debounce'
 import Upload from "./Upload"
 import {
@@ -53,7 +53,7 @@ const Create = () => {
   const [testTitle, setTestTitle] = useState("")
   const [step, setStep] = useState(0)
   const [validRecaptcha,setValidRecaptcha] = useState(false)
-  const [formData,setFormData] = useState(null)
+  const formData = useMemo(()=> new FormData(),[])
   const ref = useRef()
 
   useEffect(()=>{
@@ -119,14 +119,32 @@ const Create = () => {
       ])
   }
   }, [tests.length])
+
+  const deleteFormData = useCallback((array,testIndex,id) =>{
+    if(formData.has(id)){
+      formData.delete(id)
+    }
+      if(array[testIndex].variants.some(v=> v.img)){
+        array[testIndex].variants.forEach(v=>{
+          let testVariantId = `${id}-${v.id}`
+          if(formData.has(testVariantId)){
+            formData.delete(testVariantId)
+          }
+        })
+      }
+  },[formData])
+
   const deleteQuestion = useCallback(
     (id) => {
       let array = [...tests]
       let testIndex = array.findIndex((test) => test.id === id)
+      
+      deleteFormData(array,testIndex,id)
+
       array.splice(testIndex,1)
       setTests(array)
     },
-    [tests]
+    [tests,deleteFormData]
   )
 
   const addVariant = useCallback((id) => {
@@ -154,8 +172,12 @@ const Create = () => {
       array[testIndex].multiple = array[testIndex].variants.filter(v=> v.correct === true).length > 1 ? true : false
       
       setTests(array)
+
+      if(formData.has(`${id}-${variantId}`)){
+        formData.delete(`${id}-${variantId}`)
+      }
     },
-    [tests]
+    [tests,formData]
   )
   const setCorrectVariant = useCallback((id,variantId)=>{
     let array = [...tests]
@@ -332,7 +354,7 @@ const Create = () => {
                 fullWidth>
                 Добавить вопрос
               </Button>
-              {tests.length ? <Upload setError={setError} tests={tests} setTests={setTests} setFormData={setFormData} />:""}
+              {tests.length ? <Upload setError={setError} tests={tests} setTests={setTests} formData={formData} />:""}
               {tests.length ? 
                 <Button onClick={saveTest} fullWidth style={{marginBottom:"4px"}}  variant="contained" color="primary">Сохранить тест</Button>
                 :""}
