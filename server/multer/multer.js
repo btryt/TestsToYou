@@ -25,12 +25,12 @@ const whitelist = [
               return cb(null,true)
           }
           else {
-            return cb({code:"WRONG_TYPE_FILE",message:"Формат картинки должен быть jpeg, jpg, png"},false)
+            return cb({code:"WRONG_TYPE_FILE",message:"Формат файла должен быть jpeg, jpg, pjpeg ,png, gif"},false)
           }
       },
       limits:{
-          fileSize: (1024 * 1024) * 2,
-          files: 40
+          fileSize: (1024 * 1024) * 1,
+          files: 60
       }
   }).any()
 

@@ -39,7 +39,7 @@ const Create = () => {
     title:"",
     multiple:false,
     img:false,
-    variants:[{id:new Date().getTime(),title:"",correct:true,img:false}]
+    variants:[{id:new Date().getTime() * Math.round(Math.random() * 20) + 1,title:"",correct:true,img:false}]
   }])
   const [hideInput,setHideInput] = useState(false)
   const [continueTest,setContinueTest] = useState(false)
@@ -105,7 +105,7 @@ const Create = () => {
   const addQuestion = useCallback(() => {
     if(tests.length+1 <= 40){
       const id = new Date().getTime()
-      const variantId = new Date().getTime()
+      const variantId = new Date().getTime() * Math.round(Math.random() * 20) + 1
 
       setTests((prev) => [
         ...prev,
