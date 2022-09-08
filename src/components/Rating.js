@@ -16,12 +16,11 @@ const Rating = ({style,testId,setErrorMessage}) => {
   const [selectedIndex,setSelectedIndex] = useState(-1)
   const [globalRating,setGlobalRating] = useState(-1)
   const [averageRating,setAverageRating] = useState(0)
-  const [update,setUpdate] = useState(0)
   const [numberOfRated,setNumberOfRated] = useState(0)
   const [hoverElement,setHoverElement] = useState(false)
   const [isFloat,setIsFloat] = useState(false)
 
-  useEffect(()=>{
+  const getRating = () => {
     fetch(`/api/test/rating?id=${testId}`,{method:"GET"})
     .then(async res=>{
         let {rating,numberOfUsers} = await res.json()
@@ -36,7 +35,11 @@ const Rating = ({style,testId,setErrorMessage}) => {
         }
         else setGlobalRating(rating -1)
     })
-  },[testId,update])
+  }
+
+  useEffect(()=>{
+    getRating()
+  },[])
 
   useEffect(()=>{
     if(globalRating !== -1){
@@ -61,7 +64,7 @@ const Rating = ({style,testId,setErrorMessage}) => {
       if(!res.ok){
         setErrorMessage(res.message)
       }
-      else setUpdate(Math.random())
+      else getRating()
     })
   },[setErrorMessage,testId])
   const overElement = useCallback((id) =>{
