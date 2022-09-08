@@ -26,6 +26,7 @@ const Results = ({id,open,setOpen}) =>{
     const [deleted,setDeleted] = useState(0)
     const [selected,setSelected] = useState([])
     const [results,setResults] = useState([])
+    const [waitFetchComplite,setWaitFetchComplite] = useState(false)
     const [columns,setColumns] = useState([{field:"name",headerName:"Имя",width:150,editable: false},
     {field:"percentages",headerName:"Процент",width:150,editable: false,type: 'number'},
     {field:"result",headerName:"Результат",width:150,editable: false},
@@ -68,14 +69,19 @@ const Results = ({id,open,setOpen}) =>{
 
     const deleteResult = useCallback(()=>{
         if(selected.length){
+            if(!waitFetchComplite){
+            setWaitFetchComplite(true)
             fetch("/api/test/result/delete",{method:"POST",body:JSON.stringify(selected),headers:{
                 "Content-Type":"application/json"
             }})
             .then(async res=>{
                 if(res.ok) setDeleted(await res.text())
+            }).finally(()=>{
+                setWaitFetchComplite(false)
             })
         }
-    },[selected])
+      }
+    },[selected,waitFetchComplite])
     
     const showListRating = useCallback(()=>{
         setShowList(prev => !prev)

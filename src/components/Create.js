@@ -53,6 +53,7 @@ const Create = () => {
   const [testTitle, setTestTitle] = useState("")
   const [step, setStep] = useState(0)
   const [validRecaptcha,setValidRecaptcha] = useState(false)
+  const [waitFetchComplite,setWaitFetchComplite] =useState(false)
   const formData = useMemo(()=> new FormData(),[])
   const ref = useRef()
 
@@ -235,7 +236,8 @@ const Create = () => {
         }
       })
     })
-    if(!characterLimitExceededTitle.length && !characterLimitExceededVariant.length && !isEmpty && validRecaptcha ){
+    if(!characterLimitExceededTitle.length && !characterLimitExceededVariant.length && !isEmpty && validRecaptcha && !waitFetchComplite ){
+      setWaitFetchComplite(true)
       fetch('/api/test/create',{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tests:tests,testTitle,showCorrect,linkAccess})})
       .then(async(res)=>{
         if(res.ok){
@@ -252,9 +254,11 @@ const Create = () => {
         else{
           setError("Произошла неизвестна ошибка при создании теста")
         }
+    }).finally(()=>{
+      setWaitFetchComplite(false)
     })
     }
-  },[testTitle,formData,showCorrect,characterLimitExceededTitle.length,characterLimitExceededVariant.length,linkAccess,validRecaptcha,tests])
+  },[testTitle,formData,showCorrect,characterLimitExceededTitle.length,characterLimitExceededVariant.length,linkAccess,validRecaptcha,tests,waitFetchComplite])
 
 
   const saveTest = useCallback(()=>{

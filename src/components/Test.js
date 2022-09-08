@@ -25,7 +25,7 @@ const Test = () => {
   const params = useParams()
   const [step,setStep] = useState(0)
   const [loaded,setLoaded] = useState(false)
-  const [wait,setWait] = useState(false)
+  const [waitFetchComplite,setWaitFetchComplite] = useState(false)
   const [testId,setTestId] = useState(0)
   const [userLogin,setUserLogin] = useState("")
   const [emptyAnswer,setEmptyAnswer] = useState(false) 
@@ -119,8 +119,8 @@ const Test = () => {
 
   const finishTest = useCallback(()=>{
     setErrorMessage("")
-    if(ref.current.value.trim() && ref.current.value.trim().length <= 15 && correctAnswers.length && !wait){ 
-      setWait(true)
+    if(ref.current.value.trim() && ref.current.value.trim().length <= 15 && correctAnswers.length && !waitFetchComplite){ 
+      setWaitFetchComplite(true)
       let name = ref.current.value.trim()
       localStorage.removeItem("answer")
       fetch("/api/test/finish",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({testId,name,answers:correctAnswers})})
@@ -132,9 +132,9 @@ const Test = () => {
         else{
           setErrorMessage(response.message)
         }
-      }).finally(()=>setWait(false))
+      }).finally(()=>setWaitFetchComplite(false))
     }
-  },[testId,correctAnswers,location])
+  },[testId,correctAnswers,location,waitFetchComplite])
 
 
   return (

@@ -28,6 +28,7 @@ function TestList() {
   const [testId,setTestId] = useState(null)
   const [loading,setLoading] =useState(false)
   const [rows,setRows] = useState([])
+  const [waitFetchComplite,setWaitFetchComplite] = useState(false)
   const [selected, setSelected] = React.useState([]);
   const [columns,setColumns] = useState([{field:"title",headerName:"Название",width:250,editable: false},
     {field:"url",headerName:"Ссылка на тест",editable:false,width:260,renderCell:(params)=><Link style={{color:"white"}}  to={`../../test/${params.value}`}>http://localhost/test/{params.value}</Link>},
@@ -67,14 +68,19 @@ function TestList() {
 }
 
 const deleteTest = useCallback(() =>{
+  if(!waitFetchComplite){
+  setWaitFetchComplite(true) 
   fetch('/api/test/delete',{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(selected)})
   .then(async res=>{
     if(res.ok){
       getTestsList()
       setSelected([])
     }
+  }).finally(()=>{
+    setWaitFetchComplite(false)
   })
-},[selected,setSelected])
+ }
+},[selected,setSelected,waitFetchComplite])
 
   return (
     <Paper className={classes.root} >
