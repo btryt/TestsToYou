@@ -130,4 +130,4 @@ const Result = () => {
   )
 }
 
-export default React.memo(Result)
+export default Result

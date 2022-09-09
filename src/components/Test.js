@@ -205,4 +205,4 @@ const Test = () => {
   )
 }
 
-export default React.memo(Test)
+export default Test

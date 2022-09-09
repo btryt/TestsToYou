@@ -45,12 +45,12 @@ import { useAuth } from '../hooks/useAuth'
     const regPassword = useRef()
     const userLogin = useRef()
 
-      const recaptcha = useCallback(() =>{
+      const recaptcha = () =>{
         setValidRecaptcha(true)
-      },[])
-      const expiredRecaptcha = useCallback(() =>{
+      }
+      const expiredRecaptcha = () =>{
         setValidRecaptcha(false)
-      },[])
+      }
 
       useEffect(()=>{
         if(errorMessage){

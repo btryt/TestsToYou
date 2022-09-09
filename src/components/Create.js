@@ -75,12 +75,12 @@ const Create = () => {
     }
   },[continueTest])
 
-  const addTitle = useCallback(() => {
+  const addTitle = () => {
     if (ref.current.value.trim() && ref.current.value.trim().length <= 110 && ref.current.value.trim().length >= 5) {
       setTestTitle(ref.current.value.trim())
       setStep((prev) => prev + 1)
     }
-  }, [])
+  }
   
   const changeTestTitle = debounce((e,id)=>{
       let array = [...tests]
@@ -261,34 +261,33 @@ const Create = () => {
   },[testTitle,formData,showCorrect,characterLimitExceededTitle.length,characterLimitExceededVariant.length,linkAccess,validRecaptcha,tests,waitFetchComplite])
 
 
-  const saveTest = useCallback(()=>{
-
+  const saveTest = ()=>{
     localStorage.setItem("saved_test",JSON.stringify({tests,linkAccess,showCorrect,testTitle,testData:tests}))
-  },[tests,linkAccess,showCorrect,testTitle])
+  }
 
-  const continueTestHandler = useCallback(()=>{
+  const continueTestHandler = ()=>{
     setContinueTest(true)
-  },[])
+  }
 
-  const deleteSavedTest = useCallback(()=>{
+  const deleteSavedTest = ()=>{
     localStorage.removeItem("saved_test")
 
     setHideInput(false)
-  },[])
+  }
 
-  const showCorrectAnswers = useCallback(()=>{
+  const showCorrectAnswers =()=>{
     setShowCorrect(prev=> !prev)
-  },[])
-  const changeLinkAccess = useCallback(()=>{
+  }
+  const changeLinkAccess =()=>{
     setLinkAccess(prev => !prev)
-  },[])
+  }
 
-  const recaptcha = useCallback(()=>{
+  const recaptcha = ()=>{
     setValidRecaptcha(true)
-  },[])
-  const expiredRecaptcha = useCallback(()=>{
+  }
+  const expiredRecaptcha = ()=>{
     setValidRecaptcha(false)
-  },[])
+  }
 
   useEffect(()=>{
     if(error){
@@ -377,4 +376,4 @@ const Create = () => {
   )
 }
 
-export default React.memo(Create)
+export default Create

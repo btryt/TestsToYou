@@ -48,13 +48,14 @@ const Results = ({id,open,setOpen}) =>{
             })
         }
     },[id,open,deleted])
-    const onClose = useCallback(()=>{
+    
+    const onClose = ()=>{
         setOpen(false)
         setResults([])
         setUsersRating([])
         setShowList(false)
         setSelected([])
-    },[setOpen])
+    }
 
     const onSelected = useCallback((id)=>{
         if(id.length){
@@ -83,9 +84,9 @@ const Results = ({id,open,setOpen}) =>{
       }
     },[selected,waitFetchComplite])
     
-    const showListRating = useCallback(()=>{
+    const showListRating = ()=>{
         setShowList(prev => !prev)
-    },[])
+    }
 
     return (
     <Modal style={{display:"flex",justifyContent:"center",alignItems:"center"}} onClose={onClose} open={open}>

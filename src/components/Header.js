@@ -62,19 +62,18 @@ const Header = () => {
   const [open, setOpen] = React.useState(false)
 
 
-  const handleClick = useCallback((event) => {
+  const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
-  }, [])
+  }
 
-  const handleClose = useCallback(() => {
+  const handleClose = () => {
     setAnchorEl(null)
-  }, [])
+  }
 
-
-  const toggleHandler = useCallback((op)=>{
+  const toggleHandler = (op)=>{
       setAnchorEl(null)
       setOpen(op)
-  },[])
+  }
   return (
     <>
       <AppBar
@@ -158,4 +157,4 @@ const Header = () => {
   )
 }
 
-export default React.memo(Header)
+export default Header

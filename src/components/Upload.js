@@ -5,9 +5,9 @@ const Upload = ({tests,setTests,formData}) =>{
     const [open,setOpen] = useState(false)
     const [ref,setRef] = useState(null)
 
-    const mountRef = useCallback((node)=>{
+    const mountRef = (node)=>{
         if(node !== null) setRef(node)
-    },[])
+    }
 
     const displayUploadedImg = useCallback(()=> {
         if (ref !== null){

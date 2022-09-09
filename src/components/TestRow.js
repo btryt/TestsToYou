@@ -1,5 +1,4 @@
 import React from "react"
-import { useMemo } from "react"
 import {
   TextField,
   Button,
@@ -30,7 +29,7 @@ const TestRow = ({
     setCorrectVariant,
   },
 }) => {
-  const test = useMemo(() => tests[index], [tests, index])
+  const test = tests[index]
  
   return (
     <Paper style={{...style,padding:"4px",height:style.height - 10,margin:"8px"}} elevation={7}>
@@ -150,4 +149,4 @@ const TestRow = ({
   )
 }
 
-export default TestRow
+export default React.memo(TestRow)
