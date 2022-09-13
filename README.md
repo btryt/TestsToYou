@@ -47,4 +47,24 @@
 
 ![Страница результата](https://i.imgur.com/17eAvUX.png)
 
+---
+
+Адаптация под мобильные устройства размером 320px
+
+![Список тестов](https://i.imgur.com/uGhYZjL.png)
+
+---
+
+![Создание теста](https://i.imgur.com/RDuPywb.png)
+
+---
+ 
+![Страница теста](https://i.imgur.com/CeNglPg.png)
+
+---
+
+![Шапка](https://i.imgur.com/tyxb772.png)
+
+
+
 
